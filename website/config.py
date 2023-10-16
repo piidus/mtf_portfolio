@@ -1,5 +1,5 @@
 import os
-import dotenv
+# import dotenv
 # dotenv.load_dotenv()
 DEBUG = True
 # from test import db, db_pwd, db_user1, db_path1
