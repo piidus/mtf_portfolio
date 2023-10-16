@@ -2,6 +2,7 @@ import os, dotenv
 dotenv.load_dotenv()
 DEBUG = True
 # from test import db, db_pwd, db_user1, db_path1
+print('fake')
 # SQLALCHEMY_DATABASE_URI =
 SECRET_KEY = 'hardsecretkey'
 db_user = os.environ.get('DB_USER')
