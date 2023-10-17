@@ -120,7 +120,7 @@ test.py
 # SageMath parsed files
 *.sage.py
 requirements copy.txt
-website/config.py
+# website/config.py
 # Environments
 .env
 .venv
