@@ -6,6 +6,7 @@ views = Blueprint('views', __name__)
 
 
 #creating our routes
+# Mail route
 @views.route('/send_email')
 def send_email():
     recipient = 'sudiipkumarbasu@gmail.com'
