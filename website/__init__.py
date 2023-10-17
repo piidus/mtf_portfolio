@@ -2,9 +2,8 @@ from flask import Flask, render_template, flash, request, redirect, url_for
 from .models import db
 from flask_sqlalchemy import SQLAlchemy
 import os
-
-
-
+from flask_mail import Mail
+# from website.mail_cls import mail
 # db = SQLAlchemy()
 
 def create_app():
@@ -12,7 +11,7 @@ def create_app():
     app  = Flask(__name__)
     app.config.from_pyfile('config.py')
     db.init_app(app)
-
+    mail = Mail(app)
 
 
     from .views import views
