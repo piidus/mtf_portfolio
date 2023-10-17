@@ -9,17 +9,20 @@ views = Blueprint('views', __name__)
 
 @views.route('/send_email')
 def send_email():
-    recipient = 'sudiipkumarbasu@gmail.com'
-    subject = 'This is Testing'
-    body = "Hi: This message for email verification"
+    try:
+        recipient = 'sudiipkumarbasu@gmail.com'
+        subject = 'This is Testing'
+        body = "Hi: This message for email verification"
 
-    msg = Message(subject, sender=current_app.config['MAIL_USERNAME'], recipients=[recipient])
-    msg.body = body
+        msg = Message(subject, sender=current_app.config['MAIL_USERNAME'], recipients=[recipient])
+        msg.body = body
 
-    mail = current_app.extensions['mail']
-    mail.send(msg)
+        mail = current_app.extensions['mail']
+        mail.send(msg)
 
-    return "Email sent successfully!"
+        return "Email sent successfully!"
+    except Exception as e:
+        return f"Error : {e}"
 
 
 @views.route('/', methods = ['GET', 'POST'])
