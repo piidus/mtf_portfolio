@@ -25,4 +25,4 @@ def generate_random_numbers():
 def handle_message(message):
     print(message)
     emit('response', message+'hello')  # Example WebSocket event handler
-    generate_random_numbers()
+    # generate_random_numbers()
