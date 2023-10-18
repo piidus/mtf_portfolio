@@ -14,6 +14,8 @@ def generate_random_numbers():
         time.sleep(1)  # Adjust this delay based on your needs
         num = random.randint(1, 1000)
         print(num)
+        if num % 2 ==0:
+            emit('even num', num)
         if num % 17 == 0:
             print(num)
             emit('random_number', num)
