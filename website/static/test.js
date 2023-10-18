@@ -24,6 +24,7 @@ function requestNotificationPermission() {
     });
 }
 
+socket.om('even', function(num){console.log(num)});
 
 socket.on('random_number', function(num) {
     console.log('Received random number:', num);
