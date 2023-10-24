@@ -4,7 +4,7 @@
 
 # sys.path.insert(0, os.path.dirname(__file__))
 
-from main import app as application
+from main import socketio as application
 
 # def application(environ, start_response):
 #     start_response('200 OK', [('Content-Type', 'text/plain')])
