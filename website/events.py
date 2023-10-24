@@ -1,28 +1,40 @@
-from flask_socketio import SocketIO
-from flask_socketio import emit
-import random, time
-socketio = SocketIO()
-@socketio.on('connect')
-def socket_connect():
-    print('Client Connected')
+
+from .models import socketio
+import random,time, datetime
+import threading
 
 
+# @socketio.on('connect')
+# def connect():
+#     print(f'Client connected:')
+#     emit('user_info', 500)
 
-def generate_random_numbers():
-    total =2
-    while total>0:
-        time.sleep(1)  # Adjust this delay based on your needs
-        num = random.randint(1, 1000)
-        # print(num)
-        if num % 2 ==0:
-            emit('even_num', num)
-        if num % 17 == 0:
-            print(num)
-            emit('random_number', num)
-            total-=1
+@socketio.on('disconnect', namespace='/my_namespace')
+def disconnect():
+    print(f'Client disconnected: ')
 
-@socketio.on('message')
-def handle_message(message):
-    print(message)
-    emit('response', message+'hello')  # Example WebSocket event handler
-    # generate_random_numbers()
+# @socketio.on('custom_event')
+# def custom_event():
+#     print(f'Received custom event from js')
+    # emit('receive quote')
+    # Perform actions upon receiving a custom event
+def func_1():
+    for _ in range(10):
+        time.sleep(5)
+        num = random.randint(5,5000)
+        message = f'Hello Sudip : {num, datetime.datetime.now()}'
+        try:
+            t = socketio.emit('custom_event', message)
+            print(f'Sent: {message}', t)
+
+        except Exception as e:
+            print(e)
+
+@socketio.on('send_date')
+def handle_date(data):
+    print('data from js', data)
+    socketio.emit('custom_event', 'It comes from backend')
+    # func_1()
+    t = threading.Thread(target=func_1, args=(socketio.emit,))
+    t.daemon = True 
+    t.start()

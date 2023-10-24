@@ -6,7 +6,6 @@ from flask_mail import Mail
 
 from .events import socketio
 
-
 def create_app():
     #create the object of Flask
     app  = Flask(__name__)

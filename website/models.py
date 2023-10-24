@@ -1,7 +1,8 @@
 from flask_sqlalchemy import SQLAlchemy
+from flask_socketio import SocketIO
 
 db = SQLAlchemy()
-
+socketio = SocketIO()
 #our model
 class UserInfo(db.Model):
     id = db.Column(db.Integer, primary_key = True)
