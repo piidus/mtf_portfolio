@@ -18,9 +18,14 @@ MAIL_USERNAME = 'info@mtf.piidus.in'
 MAIL_PASSWORD = f"{mail_pwd}"
 MAIL_USE_TLS = True
 MAIL_USE_SSL = False
-print('MAIL PWD :', mail_pwd)
+# print('MAIL PWD :', mail_pwd)
 # SQLALCHEMY_DATABASE_URI = f'sqlite:///database.db'
 SQLALCHEMY_DATABASE_URI = f'mysql+pymysql://{db_user}:{db_pass}@{db_path}:3306/{db_name}'
 # SQLALCHEMY_DATABASE_URI = f'mysql+pymysql://{db_user1}:{db_pwd}@{db_path1}:3306/{db}'
 # 'mysql://username:password@localhost/db_name'
 SQLALCHEMY_TRACK_MODIFICATIONS = False
+
+# git update-index --assume-unchanged website/config.py
+# To update
+# git update-index --no-assume-unchanged website/config.py
+ 
