@@ -3,7 +3,7 @@ from flask import Blueprint, render_template, current_app, request
 from .models import db, UserInfo
 from flask_mail import Message
 import time
-import threading
+import threading, os
 
 
 
@@ -40,7 +40,8 @@ def index():
         db.session.add(data)
         db.session.commit()
     users = UserInfo.query.all()
-    data = {'user': users}
+    mail_pwd = "0" #os.environ.get('MAIL_PWD')
+    data = {'user': users, 'mail': mail_pwd}
 
     return render_template('index.html', data= data)
 
