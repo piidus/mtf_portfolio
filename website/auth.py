@@ -1,18 +1,20 @@
 from flask import Blueprint, render_template, current_app, request
+from flask_login import login_user, login_required, logout_user, current_user
+# from werkzeug.security import generate_password_hash, check_password_hash
 # from .config import db
-from .models import db, UserInfo
+from .models import db, User
 from flask_mail import Message
 import time
 import threading, os
 
 
 
-views = Blueprint('views', __name__)
+auth = Blueprint('auth', __name__)
 
 
 #creating our routes
 
-@views.route('/send_email')
+@auth.route('/send_email')
 def send_email():
     try:
         recipient = 'sudiipkumarbasu@gmail.com'
@@ -30,19 +32,19 @@ def send_email():
         return f"Error : {e}"
 
 
-@views.route('/', methods = ['GET', 'POST'])
+@auth.route('/', methods = ['GET', 'POST'])
 def index():
     if request.method == 'POST' and 'pwd' in request.form:
         user = request.form.get('user')
         pwd = request.form.get('pwd')
         print(user, pwd)
-        data = UserInfo(username=user, password=pwd)
+        data = User(username=user, password=pwd)
         db.session.add(data)
         db.session.commit()
-    users = UserInfo.query.all()
+    users = User.query.all()
     mail_pwd = "0" #os.environ.get('MAIL_PWD')
     data = {'user': users, 'mail': mail_pwd}
 
-    return render_template('index.html', data= data)
+    return render_template('auth/home.html', user = current_user, data= data)
 
 
