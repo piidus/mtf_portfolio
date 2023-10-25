@@ -3,39 +3,17 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    
-
-    <script src="static/test.js" type="text/javascript"></script>
     <title>Document</title>
 </head>
 <body>
-    <nav>
-        <ul>
-            <li><a  href="/check_status"> check</a></li>
-        </ul>
-    </nav>
-    <button onclick="checkStatus()">Check</button>
-    <button onclick="requestNotificationPermission()">Request Notification Permission</button>
-
+    <h3>Hello</h3>
     <form action="/" method="post">
-        <label for="user">User Name</label>
         <input type="text" name="user" id="">
-        <label for="pwd">Password</label>
         <input type="text" name="pwd" id="">
         <button type="submit">Submit</button>
     </form>
-    <table>
-        <tbody>
-            {% for user in data.user %}
-                <tr>
-                    <td>{{user.username}}</td>
-                </tr>
-            {% endfor %}
-        </tbody>
-        <tr>
-
-        </tr>
-    </table>
-    
+    {% for d in data.user%}
+    <h3>{{d.username}}</h3>
+    {% endfor %}
 </body>
 </html>
