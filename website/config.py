@@ -13,12 +13,12 @@ db_path = os.environ.get('DB_PATH')
 # mail server configuration
 mail_pwd = os.environ.get('MAIL_PWD')
 MAIL_SERVER='mtf.piidus.in'
-MAIL_PORT = 587
+MAIL_PORT = 465
 MAIL_USERNAME = 'info@mtf.piidus.in'
-MAIL_PASSWORD = f"{mail_pwd}"
+MAIL_PASSWORD = mail_pwd
 MAIL_USE_TLS = True
 MAIL_USE_SSL = False
-# print('MAIL PWD :', mail_pwd)
+print('MAIL PWD :', mail_pwd)
 # SQLALCHEMY_DATABASE_URI = f'sqlite:///database.db'
 SQLALCHEMY_DATABASE_URI = f'mysql+pymysql://{db_user}:{db_pass}@{db_path}:3306/{db_name}'
 # SQLALCHEMY_DATABASE_URI = f'mysql+pymysql://{db_user1}:{db_pwd}@{db_path1}:3306/{db}'
