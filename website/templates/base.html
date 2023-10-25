@@ -5,6 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>{% block title %} {% endblock %}</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
+    <!-- ajax -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js" integrity="sha512-v2CJ7UaYy4JwqLDIrZUI/4hqeoQieOmAZNXBeQyjo21dadnwR+8ZaIJVT8EE2iyI61OV8e6M8PP2/4hpQINQ/g==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
   </head>
   <body>
     <!-- nav bar section -->
@@ -26,12 +28,15 @@
             <li class="nav-item">
               <a class="nav-link" href="/logout">Log Out</a>
             </li>
+            <li class="nav-item">
+              <a class="nav-link disabled" >{{user.first_name}}</a>
+            </li>
             {% else %}
             <li class="nav-item">
               <a class="nav-link" href="/login">Login</a>
             </li>
             <li class="nav-item">
-              <a class="nav-link" href="/signup">Sign Up</a>
+              <a class="nav-link" href="/sign-up">Sign Up</a>
             </li>
             {% endif %}
             <li class="nav-item">
@@ -43,26 +48,7 @@
     </nav>
     
     <!-- Old Nav bar -->
-    <!-- <div>
-        <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
-            <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbar">
-              <span class="navbar-toggler-icon"></span>
-            </button>
-            <div class="collapse navbar-collapse" id="navbar">
-              <div class="navbar-nav">
-                <a class="nav-item nav-link" id="home" href="/">Home</a>
-                {% if user.is_authenticated %}
-                <a class="nav-item nav-link" id="dashboard" href="/dashboard">DashBoard</a>
-                <a class="nav-item nav-link" id="logout" href="/logout">Logout</a>
-                <li class="nav-item nav-link"><span>{{user.first_name}}</span></li>
-                {% else %}
-                <a class="nav-item nav-link" id="login" href="/login">Login</a>
-                <a class="nav-item nav-link" id="signUp" href="/sign-up">Sign Up</a>
-                {% endif %}
-              </div>
-            </div>
-          </nav>
-    </div> -->
+ 
     <!-- Flash message -->
     <div>{% with messages = get_flashed_messages(with_categories=true) %} {% if
       messages %} {% for category, message in messages %} {% if category ==
@@ -86,7 +72,9 @@
     </div>
     {% block body %}
     {% endblock %}
+    {% block js %}
     
+    {% endblock %}
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL" crossorigin="anonymous"></script>
   </body>
 </html>

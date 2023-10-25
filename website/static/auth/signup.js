@@ -1,0 +1,42 @@
+// Check email
+function sendEmail(){
+    var mail = $("#email").val();
+    
+    $.ajax({
+        type: 'POST',
+        url: '/check_email',
+        contentType: 'application/json',
+        data: JSON.stringify({'email': mail}),
+        success: function (data) {
+            if (data.exists) {
+                alert('Email exists.');
+            } else {
+                // alert(mail);
+                $("#email").prop("disabled" , true);
+                $("#sendMailbt").hide();
+                var div = document.getElementById("checkCaptcha");
+                    if (div.style.display === "none") {
+                        div.style.display = "block";
+                    } else {
+                        div.style.display = "none";
+                    }
+                $('#recapcha').text(data.code);
+            }
+        }
+    });
+
+};
+function activateSection() {
+    var cap = $("#recapcha").text();
+    var cap2 = $("#capSec").val();
+    console.log(cap, cap2)
+    if (cap === cap2){
+        var capSection = document.getElementById("checkCaptcha");
+        capSection.style.display = 'none'
+        var div = document.getElementById("myDiv");
+        if (div.style.display === "none") {
+            div.style.display = "block";
+        } else {
+            div.style.display = "none";
+    }}else{alert('Please check the mail')}
+};
