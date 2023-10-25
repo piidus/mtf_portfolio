@@ -4,7 +4,7 @@ from flask_sqlalchemy import SQLAlchemy
 import os
 from flask_mail import Mail
 
-from .events import socketio
+
 
 def create_app():
     #create the object of Flask
@@ -12,7 +12,7 @@ def create_app():
     app.config.from_pyfile('config.py')
     db.init_app(app)
     mail = Mail(app)
-    socketio.init_app(app)
+    
 
 
     from .views import views
