@@ -1,8 +1,8 @@
 from flask import Flask, render_template, flash, request, redirect, url_for
-from .models import db
+from .models import db, mail
 from flask_sqlalchemy import SQLAlchemy
 import os
-from flask_mail import Mail
+# from flask_mail import Mail
 
 
 
@@ -11,7 +11,7 @@ def create_app():
     app  = Flask(__name__)
     app.config.from_pyfile('config.py')
     db.init_app(app)
-    mail = Mail(app)
+    mail.init_app(app)
     
 
 
