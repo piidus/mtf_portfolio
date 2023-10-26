@@ -2,6 +2,7 @@ try:
     from selenium import webdriver
     from selenium.webdriver.common.by import By
     from selenium.common.exceptions import WebDriverException
+    import time
 except Exception as e:
     print('Error in strategy/icicilogin.py  :', e)
 
