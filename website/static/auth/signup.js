@@ -13,6 +13,7 @@ function sendEmail(){
             } else {
                 // alert(mail);
                 $("#email").prop("disabled" , true);
+                $('#hiddenEmail').val(mail); // Set the hidden input value
                 $("#sendMailbt").hide();
                 var div = document.getElementById("checkCaptcha");
                     if (div.style.display === "none") {
@@ -29,7 +30,7 @@ function sendEmail(){
 function activateSection() {
     var cap = $("#recapcha").text();
     var cap2 = $("#capSec").val();
-    console.log(cap, cap2)
+    // console.log(cap, cap2)
     if (cap === cap2){
         var capSection = document.getElementById("checkCaptcha");
         capSection.style.display = 'none'

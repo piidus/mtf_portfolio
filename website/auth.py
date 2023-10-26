@@ -4,7 +4,7 @@ from werkzeug.security import generate_password_hash, check_password_hash
 # from .config import db
 from .models import db, User
 from flask_mail import Message
-import time
+import time, random
 import threading, os
 
 
@@ -52,22 +52,27 @@ def check_email():
 
     data = request.get_json()
     email = data['email']
+    # print(email)
+    suth = random.randint(1000, 90000)
+    send_authentication(subject='Authentication Mail', body=suth, email=email)
     user = User.query.filter_by(email=email).first()
     print(user)
     if user:        
         response = {'exists': True}
         
     else:
-        response = {'exists': False, 'code':12}
-        print(data)
+        response = {'exists': False, 'code':suth}
+        # print(data)
 
     return jsonify(response)
 
 @auth.route('/sign-up', methods=['GET', 'POST'])
 def sign_up():
-    
+    print(request.form.getlist('signup'))
     if request.method == 'POST':
-        email = request.form.get('email')
+        email = request.form.get('hiddenEmail')
+        # print(email)
+        # Check if the input element is 
         first_name = request.form.get('firstName')
         password1 = request.form.get('password1')
         password2 = request.form.get('password2')
@@ -90,11 +95,11 @@ def sign_up():
             new_user = User(email=email, first_name=first_name, password=generate_password_hash(
                 password1, method='pbkdf2:sha1', salt_length=8), phone = phone)
             
-            # db.session.add(new_user)
-            # db.session.commit()
-            # login_user(new_user, remember=True)
+            db.session.add(new_user)
+            db.session.commit()
+            login_user(new_user, remember=True)
             flash('Account created!', category='success')
-            return redirect(url_for('auth.home'))
+            return redirect(url_for('auth.index'))
 
     return render_template("auth/signup.html", user=current_user)
 

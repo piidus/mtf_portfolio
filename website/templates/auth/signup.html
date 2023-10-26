@@ -1,17 +1,19 @@
 {% extends "base.html" %} {% block title %}Sign Up{% endblock %} {% block
 body %}
 <div class="container">
-  <form method="POST">
+  <form method="POST" action="/sign-up" name="signup">
     <h3 align="center">Sign Up</h3>
     <div class="form-group">
       <label for="email">Email Address</label>
       <input type="email" class="form-control" id="email" name="email" placeholder="Enter email" />
+      <!-- Add a hidden input field to store the email value -->
+    <input type="hidden" id="hiddenEmail" name="hiddenEmail">
     </div>
     <div id="sendMailbt">
     <input type="button" value="Send Mail" id="activateButton" onclick="sendEmail()"></div>
     <div id="checkCaptcha" style="display: none;">
       <input type="text" name="" id="capSec">
-      <span  id="recapcha">Hellp</span>
+      <span hidden = "hidden" id="recapcha" >Hellp</span>
       <!-- style="display: none;" -->
       <input type="button" value="Submit Code" onclick="activateSection()">
     </div>
@@ -34,7 +36,7 @@ body %}
         <input type="number" class="form-control" id="phone" name="phone" placeholder="Only 10 numeric Digit" />
       </div>
       <br />
-      <button type="submit" class="btn btn-primary">Submit</button>
+      <button type="submit" class="btn btn-primary" >Submit</button>
   </form>
 </div>
 </div>
