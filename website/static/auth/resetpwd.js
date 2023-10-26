@@ -1,7 +1,8 @@
 // Check email
 function sendEmail(){
     var mail = $("#email").val();
-    alert("Auth Code Send to :",mail)
+    alert("Auth Code Send to :"+ mail);
+    // console.log(mail)
     $.ajax({
         type: 'POST',
         url: '/check_email',
@@ -9,9 +10,6 @@ function sendEmail(){
         data: JSON.stringify({'email': mail}),
         success: function (data) {
             if (data.exists) {
-                alert('Email exists.');
-            } else {
-                // alert(mail);
                 $("#email").prop("disabled" , true);
                 $('#hiddenEmail').val(mail); // Set the hidden input value
                 $("#sendMailbt").hide();
@@ -22,6 +20,10 @@ function sendEmail(){
                         div.style.display = "none";
                     }
                 $('#recapcha').text(data.code);
+            } else {
+                // alert(mail);
+                
+                alert('Email exists.');
             }
         }
     });

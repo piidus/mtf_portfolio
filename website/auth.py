@@ -56,9 +56,9 @@ def check_email():
     suth = random.randint(1000, 90000)
     send_authentication(subject='Authentication Mail', body=suth, email=email)
     user = User.query.filter_by(email=email).first()
-    print(user)
+    # print(user)
     if user:        
-        response = {'exists': True}
+        response = {'exists': True, 'code': suth}
         
     else:
         response = {'exists': False, 'code':suth}
@@ -68,7 +68,7 @@ def check_email():
 
 @auth.route('/sign-up', methods=['GET', 'POST'])
 def sign_up():
-    print(request.form.getlist('signup'))
+    # print(request.form.getlist('signup'))
     if request.method == 'POST':
         email = request.form.get('hiddenEmail')
         # print(email)
@@ -114,7 +114,7 @@ def login():
             if check_password_hash(user.password, password):
                 flash('Logged in successfully!', category='success')
                 login_user(user, remember=True)
-                return redirect(url_for('auth.home'))
+                return redirect(url_for('auth.index'))
             else:
                 flash('Incorrect password, try again.', category='error')
         else:
@@ -128,3 +128,18 @@ def login():
 def logout():
     logout_user()
     return redirect(url_for('auth.login'))
+
+@auth.route('/reset_password', methods = ['POST', 'GET'])
+def reset_pwd():
+    if request.method == 'POST':
+        email = request.form.get('hiddenEmail')
+        pwd = request.form.get('pwd')
+        print(pwd)
+        user = User.query.filter_by(email = email).first()
+        user.password = generate_password_hash(pwd)
+        db.session.commit()
+        flash(message='Password Changed', category='success')
+        return redirect(url_for('auth.index'))
+    
+
+    return render_template('auth/reset_password.html', user =  current_user)
