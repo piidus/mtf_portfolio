@@ -16,8 +16,11 @@ def create_app():
 
 
     from .auth import auth
+    from .user_all.dashboard import all_user
 
     app.register_blueprint(auth, url_prefix='/')
+    app.register_blueprint(all_user, url_prefix='/')
+    
     
 
     # from .models import User, Note

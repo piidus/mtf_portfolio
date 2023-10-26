@@ -1,0 +1,37 @@
+{% extends 'user_base.html'%}
+{% block body%}
+
+<div class="cointainer-fluid">
+    <p>Login Date & Time :: <span style="background-color:grey; color:azure"> {{data['algo_time']}}</span></p>
+    <form action="/icici_login" method="post">
+        <button class="btn btn-secondary" type="submit" name="api_login">API LOGIN</button>
+    </form>
+    <form action="/icici_login" method="post">
+        <label for="session_key">API KEY</label>
+            <input class="form-control" type="number" name="session_key" id="" placeholder="session key">
+        <button class="btn btn-secondary" type="submit" >SET SESSION KEY</button>
+    </form>
+</div>
+<hr>
+<br>
+<div class="container">
+    <button type="button" class="btn btn-secondary" data-toggle="collapse" data-target="#myForm">API Entry Form</button>
+    
+        <form action="/icici_login" method="post" class="collapse" id="myForm" >
+            
+            <label for="api_id">API KEY</label>
+            <input class="form-control" type="text" name="api_id" id="" placeholder="api key">
+            <label for="api_sec">API SECRECT</label>
+            <input class="form-control" type="text" name="api_sec" id="" placeholder="api secrect">
+
+            <label for="user_id">USER ID</label>
+            <input class="form-control" type="text" name="user_id" id="" placeholder="user id">
+            <label for="pwd">PASSWORD</label>
+            <input class="form-control" type="text" name="pwd" id="" placeholder="password"><br>
+            <button class="btn btn-secondary" type="submit" name="cred_delete"> CRED DELETE </button>
+            <button class="btn btn-primary" type="submit" name="cred_input"> cred_input </button>
+        
+        </form>
+</div>
+
+{%endblock%}
