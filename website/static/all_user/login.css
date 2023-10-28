@@ -1,0 +1,8 @@
+/* body {
+    background-color: #ede9e9;
+    font-family: Arial, sans-serif;
+} */
+/* Define a CSS class to hide or show the form */
+.hidden-form {
+    display: none;
+}

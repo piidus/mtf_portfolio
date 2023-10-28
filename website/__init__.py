@@ -3,7 +3,7 @@ from .models import db, mail
 from flask_login import LoginManager
 from .models import User
 # from flask_mail import Mail
-
+import logging
 
 
 def create_app():
@@ -13,6 +13,14 @@ def create_app():
     db.init_app(app)
     mail.init_app(app)
     
+    # Configure basic logging
+    # logging.basicConfig(filename='app.log', level=logging.DEBUG)
+     # Configure logging
+    logging.basicConfig(
+        filename='app.log',
+        level=logging.DEBUG,
+        format='%(asctime)s %(levelname)s %(name)s %(message)s'
+    )
 
 
     from .auth import auth

@@ -17,6 +17,7 @@ class User(db.Model, UserMixin):
     first_name = db.Column(db.String(150))
     phone = db.Column(db.String(10))
     active = db.Column(db.Boolean(), default= False)
+    api_id = db.relationship('Algo',uselist = False, backref='api')
 #     role_id = db.Column(db.Integer, db.ForeignKey('roles.id'), nullable = True)
     
 
@@ -27,4 +28,14 @@ class User(db.Model, UserMixin):
 #     name = db.Column(db.String(50), unique=False)
 #     details = db.Column(db.String(100), nullable = True)
 #     role = db.relationship('User', backref='role')  #back ref should be database name in small
-    
+
+
+# Define icici api model
+class Algo(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    api_key = db.Column(db.String(150), unique=True)
+    converted_key = db.Column(db.String(150), unique=True)
+    api_secret = db.Column(db.String(150), unique=True)
+    api_sesion = db.Column(db.String(50), unique=False, nullable = True)
+    session_time = db.Column(db.String(50), unique=False, nullable = True)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id')) 

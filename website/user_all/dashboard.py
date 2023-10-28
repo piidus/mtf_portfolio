@@ -2,7 +2,8 @@ try:
     from flask import Blueprint, render_template, flash, current_app, request, redirect, url_for, jsonify, make_response
     from flask_login import login_user, login_required, logout_user, current_user
     from website.strategy import SessionKeyGenerator
-    from website.models import db, User
+    from website.models import db, User, Algo
+    import urllib, datetime, pytz
 except Exception as e:
     print('Error in user_all/dashboard.py', e)
 
@@ -11,44 +12,69 @@ all_user = Blueprint('all_user', __name__)
 @all_user.route('/dashboard', methods = ['POST', 'GET'])
 def dashboard():
     return render_template('user/all_user.html', user = current_user)
-@all_user.route("/new_tab")
-def new_tab():
-    response = make_response()
-    response.headers["X-My-Header"] = "My Header Value"
-
-    response.headers["Content-Type"] = "text/html"
-    response.set_cookie("new_tab", "true")
-    response.set_data("<script>window.open('https://www.google.com', '_blank');</script>")
-
-    return response
 
 
-@all_user.route('/icici_login', methods = ['GET', 'POST'])
+
+@all_user.route('/icici_login', methods = ['POST','GET'])
 def icici_login():
-    if request.method == 'POST' and 'api_login' in request.form:
-        api_key='i8582*146#NX60853w32X3*56nd8x8l0'
-        api_secrect='390N93eS546783t49!586174u63cMv54'
-        # login_url = f"https://api.icicidirect.com/apiuser/login?api_key=i8582*146#NX60853w32X3*56nd8x8l0"
+   
+    if request.method == 'POST' and 'user_id' in request.form:
+        user_id = request.form.get('user_id')
+        api = Algo.query.filter_by(user_id = user_id).first()
+        api_key=api.converted_key        
         try:
-            import urllib   
-            login_url = "https://api.icicidirect.com/apiuser/login?api_key="+urllib.parse.quote_plus(api_key)
-            response = make_response()
-            response.headers["X-My-Header"] = api_secrect
-
-            response.headers["Content-Type"] = "text/html"
-            response.set_cookie("new_tab", "true")
-            response.set_data(f"<script>window.open('{login_url}', '_blank');</script>")
-            # session_key = SessionKeyGenerator(api_key, api_secrect,1,1).icici_login()
-            # print(session_key)
+             
+            login_url = "https://api.icicidirect.com/apiuser/login?api_key="+(api_key)
+            response = {'new_link': login_url}
+            current_app.logger.info(msg='New tab triggered')
         except Exception as e:
             print('Error in icici login', e)
-        return response
-
-
+        return jsonify(response)
+    
+    # Manual Session Key Input
+    if request.method == 'POST' and 'session_key' in request.form:
+        algo = Algo.query.filter_by(user_id=current_user.id).first()
+        dt = datetime.datetime.now(pytz.timezone('Asia/Kolkata')).strftime('%Y-%h-%dT%H:%M:%S')
+        ses = request.form.get('session_key')
+        algo.api_sesion= ses
+        algo.session_time = dt
+        try:
+            db.session.commit()
+        except Exception as e:
+            flash('error in manual input', category='error')
+        else:
+            flash(message='Manually inster complete', category='success')
+    # Credential Input
+    if request.method == 'POST' and 'cred_input' in request.form:
+        # Check api is already registered on api or not
+        algo_check = Algo.query.filter_by(user_id = current_user.id).first()
+        if algo_check:
+            flash(message='Credential already registered', category='error')
+            # print('already Entered')
+            current_app.logger.error(f"{current_user.id} : want to insert again cred")
+        else:
+            user = User.query.filter_by(id = current_user.id).first()
+            api_key = request.form.get('api_id')
+            decoded_api_key = urllib.parse.quote_plus(api_key)
+            api_sec = request.form.get('api_sec')
+            
+            # print(api_key, api_sec, username, password)
+            try:
+                algo = Algo(api_key = api_key, converted_key = decoded_api_key, api_secret = api_sec,  user_id = user.id)
+                db.session.add(algo)
+                db.session.commit()
+                current_app.logger.info(f"{current_user.id} : insert new cred")
+            except Exception as e:
+                print(e)
+                db.session.rollback()
+                flash('Error in api', category='error')
+                current_app.logger.error(f"{current_user.id} : Have some issue")
+            else:
+                flash('Api Entry Sucessfull', category='success')
 
 
     try:
-        # login_time = Algo.query.filter_by(user_id=current_user.id).first()
+        login_time = Algo.query.filter_by(user_id=current_user.id).first()
         login_time = str(login_time.session_time).split('T')
     
         data = {'algo_time':f"{login_time[0]} Time : {login_time[1]}"}
