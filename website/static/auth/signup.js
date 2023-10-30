@@ -28,6 +28,7 @@ function sendEmail(){
             $('#recapcha').text(data.code);
         }
     })
+    .catch(err => console.log(err))
     
 
 };
