@@ -1,5 +1,4 @@
 $(document).ready(function(){
-    // check api loin 
     $("#api_login").on('submit', function(event){
         event.preventDefault();
         var data = $("#user_id").val();
