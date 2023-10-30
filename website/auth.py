@@ -59,9 +59,11 @@ def check_email():
     # print(user)
     if user:        
         response = {'exists': True, 'code': suth}
+        current_app.logger.info(f"In check mail if Exists  : {response}")
         
     else:
         response = {'exists': False, 'code':suth}
+        current_app.logger.info(f"In check mail if Exists  : {response}")
         # print(data)
 
     return jsonify(response)
