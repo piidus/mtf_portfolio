@@ -1,3 +1,4 @@
+// check date for last algo
 $(document).ready(function() {
     // Get the span tag value
     var spanValue = $("#loginDate").text();

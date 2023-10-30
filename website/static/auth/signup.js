@@ -1,30 +1,34 @@
 // Check email
 function sendEmail(){
     var mail = $("#email").val();
-    alert("Auth Code Send to :",mail)
-    $.ajax({
-        type: 'POST',
-        url: '/check_email',
-        contentType: 'application/json',
-        data: JSON.stringify({'email': mail}),
-        success: function (data) {
-            if (data.exists) {
-                alert('Email exists.');
-            } else {
-                // alert(mail);
-                $("#email").prop("disabled" , true);
-                $('#hiddenEmail').val(mail); // Set the hidden input value
-                $("#sendMailbt").hide();
-                var div = document.getElementById("checkCaptcha");
-                    if (div.style.display === "none") {
-                        div.style.display = "block";
-                    } else {
-                        div.style.display = "none";
-                    }
-                $('#recapcha').text(data.code);
-            }
+    alert("Auth Code Send to :"+mail)
+    const request = new Request('/check_email', {
+        method : 'POST',
+        headers : {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({'email': mail})
+    })
+    fetch(request)
+    .then(response => response.json())
+    .then(function (data) {
+        if (data.exists) {
+            alert('Email exists.');
+        } else {
+            // alert(mail);
+            $("#email").prop("disabled" , true);
+            $('#hiddenEmail').val(mail); // Set the hidden input value
+            $("#sendMailbt").hide();
+            var div = document.getElementById("checkCaptcha");
+                if (div.style.display === "none") {
+                    div.style.display = "block";
+                } else {
+                    div.style.display = "none";
+                }
+            $('#recapcha').text(data.code);
         }
-    });
+    })
+    
 
 };
 function activateSection() {
