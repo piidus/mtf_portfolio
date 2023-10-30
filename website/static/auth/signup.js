@@ -12,6 +12,7 @@ function sendEmail(){
     fetch(request)
     .then(response => response.json())
     .then(function (data) {
+        console.log(response);
         if (data.exists) {
             alert('Email exists.');
         } else {
