@@ -3,7 +3,7 @@ try:
     from flask_login import login_user, login_required, logout_user, current_user
     from website.strategy import SessionKeyGenerator
     from website.models import db, User, Algo
-    import urllib, datetime, pytz
+    import urllib, datetime, pytz, time
 except Exception as e:
     print('Error in user_all/dashboard.py', e)
 
@@ -13,23 +13,44 @@ all_user = Blueprint('all_user', __name__)
 def dashboard():
     return render_template('user/all_user.html', user = current_user)
 
+@all_user.route('/check_url')
+def check_api_login_url():
+    target_url = 'https://127.0.0.1/?apisession='
+    max_wait_time = 5  # Maximum time to wait (in seconds)
+    polling_interval = 1  # Interval for checking the URL (in seconds)
+    start_time = time.time()
 
+    # while time.time() - start_time <= max_wait_time:
+    #     # Perform a check on the target_url, and if it meets the condition you require, break the loop
+    #     # You might want to use libraries like requests to perform URL requests here.
+    #     # Example:
+    #     import requests
+    #     response = requests.get(target_url)
+    #     response.s
+    #     if some_condition_met(response):
+    #         break
+    #     time.sleep(polling_interval)
+    data = {'sns': 'I lave tou'}
+    return jsonify(data)
 
 @all_user.route('/icici_login', methods = ['POST','GET'])
 def icici_login():
-   
-    if request.method == 'POST' and 'user_id' in request.form:
-        user_id = request.form.get('user_id')
-        api = Algo.query.filter_by(user_id = user_id).first()
-        api_key=api.converted_key        
-        try:
-             
-            login_url = "https://api.icicidirect.com/apiuser/login?api_key="+(api_key)
-            response = {'new_link': login_url}
-            current_app.logger.info(msg='New tab triggered')
-        except Exception as e:
-            print('Error in icici login', e)
-        return jsonify(response)
+
+    if request.method == 'POST' : # and data['param'] == 'login_api':
+        data = request.get_json()
+        # print(data)
+        if data['param'] == 'login_api':
+            user_id = data['user_id']
+            api = Algo.query.filter_by(user_id = user_id).first()
+            api_key=api.converted_key        
+            try:
+                
+                login_url = "https://api.icicidirect.com/apiuser/login?api_key="+(api_key)
+                response = {'new_link': login_url}
+                current_app.logger.info(msg='New tab triggered')
+            except Exception as e:
+                print('Error in icici login', e)
+            return jsonify(response)
     
     # Manual Session Key Input
     if request.method == 'POST' and 'session_key' in request.form:

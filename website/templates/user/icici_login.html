@@ -6,7 +6,7 @@
 {% block body%}
 
 <div class="cointainer-fluid">
-    <p>Login Date & Time :: <span style="background-color:grey; color:azure"> {{data['algo_time']}}</span></p>
+    <p>Login Date & Time :: <span style="background-color:grey; color:azure" id="loginDate"> {{data['algo_time']}}</span></p>
     <form  method="post" id="api_login">
         <input type="hidden" id="user_id" name="user_id" value="{{user.id}}">
         <button class="btn btn-secondary" type="submit" name="api_login">API LOGIN</button>
