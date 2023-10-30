@@ -10,9 +10,11 @@ function sendEmail(){
         body: JSON.stringify({'email': mail})
     })
     fetch(request)
-    .then(response => response.json())
-    .then(function (data) {
+    .then(function (response) { 
         console.log(response);
+        return response.json()})
+    .then(function (data) {
+        
         if (data.exists) {
             alert('Email exists.');
         } else {
