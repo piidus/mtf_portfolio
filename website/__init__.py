@@ -16,11 +16,11 @@ def create_app():
     # Configure basic logging
     # logging.basicConfig(filename='app.log', level=logging.DEBUG)
      # Configure logging
-    logging.basicConfig(
-        filename='app.log',
-        level=logging.DEBUG,
-        format='%(asctime)s %(levelname)s %(name)s %(message)s'
-    )
+    # logging.basicConfig(
+    #     filename='app.log',
+    #     level=logging.DEBUG,
+    #     format='%(asctime)s %(levelname)s %(name)s %(message)s'
+    # )
 
 
     from .auth import auth
