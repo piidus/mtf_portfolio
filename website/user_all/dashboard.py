@@ -88,7 +88,7 @@ def input_cred():
             
             # print(api_key, api_sec, username, password)
             try:
-                algo = Algo(api_key = api_key, converted_key = decoded_api_key, api_secret = api_sec,  user_id = user.id)
+                algo = Algo(api_key = api_key, converted_key = decoded_api_key, api_secret = api_sec,  user_id = current_user.id)
                 db.session.add(algo)
                 db.session.commit()
                 current_app.logger.info(f"{current_user.id} : insert new cred")
