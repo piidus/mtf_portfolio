@@ -110,20 +110,24 @@ def input_cred():
             flash(f"{e}", 'error')
 
     
-        
-    algo = Algo.query.filter_by(user_id=current_user.id).first()
-    print(algo.converted_key)
-    login_url = f"https://api.icicidirect.com/apiuser/login?api_key={algo.converted_key}"
-    # print(login_url)
     data = {}
-    data['login_link'] = login_url
     try:
-        login_time = str(algo.session_time).split('T')
-        print("hello")    
-        data['algo_time'] = f"{login_time[0]} Time : {login_time[1]}"
+        algo = Algo.query.filter_by(user_id=current_user.id).first()
+        print(algo.converted_key)
+        login_url = f"https://api.icicidirect.com/apiuser/login?api_key={algo.converted_key}"
+        # print(login_url)
         
-        
-    except:
+        data['login_link'] = login_url
+    except Exception as e:
         data['algo_time'] = 'Please put you api first'
+    else:
+        try:
+            login_time = str(algo.session_time).split('T')
+            # print("hello")    
+            data['algo_time'] = f"{login_time[0]} Time : {login_time[1]}"
+            
+            
+        except:
+            data['algo_time'] = 'Please Login'
     # print('a',data)
     return render_template('user/icici_login.html', user = current_user, data = data)
