@@ -9,15 +9,18 @@ $(document).ready(function() {
     // console.log(date);
     // Create a Date object from the split date
     var date = new Date(date);
+    var date = date.getFullYear() + '-' + (date.getMonth() + 1) + '-' + date.getDate();
     // console.log(date)
     // Get the current date
     var today = new Date();
+    var today = today.getFullYear() + '-' + (today.getMonth() + 1) + '-' + today.getDate();
+    // console.log(today)
   
     // Check if the date is previous to today
     if (date < today) {
       // Color the span tag red
       $("#loginDate").css("background-color", "red");
-    }
+    }else($("#loginDate").css("background-color", 'green'))
   });
 
 // Get references to the form and button
@@ -57,10 +60,7 @@ $(document).ready(function(){
         .then(data => {
             var newLink = data['new_link'];
             var newTab = window.open(newLink, '_blank');
-             // Attach an event listener to check the URL when the new tab is fully loaded
-                // newTab.addEventListener('load', check_url());
-                // newTab.addEventListener('laod', checkURL())
-                // need Update
+             
 
 
         })
@@ -70,22 +70,22 @@ $(document).ready(function(){
 
 
 
-function check_url(){
-    fetch('/check_url')
-    .then(response => response.json())
-    .then(data => {
-        console.log(data);
-    })
-    .catch(err => {console.log('err2'+err);
-    })
-};
+// function check_url(){
+//     fetch('/check_url')
+//     .then(response => response.json())
+//     .then(data => {
+//         console.log(data);
+//     })
+//     .catch(err => {console.log('err2'+err);
+//     })
+// };
 
-    // Function to monitor URL changes
-    function checkURL() {
-        // Function to log a message in the parent window's console
-        function logInParentConsole(message) {
-            if (window.opener && window.opener.console) {
-                window.opener.console.log(message);
-            }
-        }
-    }
+//     // Function to monitor URL changes
+//     function checkURL() {
+//         // Function to log a message in the parent window's console
+//         function logInParentConsole(message) {
+//             if (window.opener && window.opener.console) {
+//                 window.opener.console.log(message);
+//             }
+//         }
+//     }

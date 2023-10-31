@@ -38,7 +38,7 @@
                         <a href="#" class="list-group-item border-end-0 d-inline-block text-truncate"
                             data-bs-parent="#sidebar"><i class="bi bi-gear"></i> <span>Item</span></a>
                         
-                        <a href="/icici_login" class="list-group-item border-end-0 d-inline-block text-truncate"
+                        <a href="/icici_cred" class="list-group-item border-end-0 d-inline-block text-truncate"
                             data-bs-parent="#sidebar"><i class="bi bi-bootstrap"></i> <span>Log-in api</span> </a>
                         <a href="/user_dashboard" class="list-group-item border-end-0 d-inline-block text-truncate"
                             data-bs-parent="#sidebar"><i class="bi bi-film"></i> <span>Trade Details </span></a>
@@ -48,10 +48,10 @@
                             
                         <a href="/logout" class="list-group-item border-end-0 d-inline-block text-truncate"
                             data-bs-parent="#sidebar"><i class="bi bi-envelope"></i> <span>Log Out</span></a>
-                        <!-- {% if (user.email =='sudiipkumarbasu@gmail.com') %} -->
+                        {% if (user.role.name =='admin') %}
                         <a href="/sudiip/admin_home" class="list-group-item border-end-0 d-inline-block text-truncate"
-                            data-bs-parent="#sidebar"><i class="bi bi-calendar"></i> <span>Admin</span></a>
-                        <!-- {%endif%} -->
+                            data-bs-parent="#sidebar"><i class="bi bi-calendar"></i> <span>Admin Site</span></a>
+                        {%endif%}
                     </div>
                 </div>
             </div>

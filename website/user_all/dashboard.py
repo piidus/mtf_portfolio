@@ -33,25 +33,32 @@ def check_api_login_url():
     data = {'sns': 'I lave tou'}
     return jsonify(data)
 
-@all_user.route('/icici_login', methods = ['POST','GET'])
+@all_user.route('/icici_login', methods = ['POST'])
 def icici_login():
-
-    if request.method == 'POST' : # and data['param'] == 'login_api':
-        data = request.get_json()
-        # print(data)
-        if data['param'] == 'login_api':
-            user_id = data['user_id']
-            api = Algo.query.filter_by(user_id = user_id).first()
-            api_key=api.converted_key        
-            try:
-                
-                login_url = "https://api.icicidirect.com/apiuser/login?api_key="+(api_key)
-                response = {'new_link': login_url}
-                current_app.logger.info(msg='New tab triggered')
-            except Exception as e:
-                print('Error in icici login', e)
-            return jsonify(response)
     
+    # if request.method == 'POST' : # and data['param'] == 'login_api':
+    if request.method == 'POST' and request.get_json().get('param') == 'login_api':  # Your code here
+        try:
+            data = request.get_json()
+        except Exception as e:
+            print(e)
+        # print(data)
+    
+        user_id = data['user_id']
+        api = Algo.query.filter_by(user_id = user_id).first()
+        api_key=api.converted_key        
+        try:
+            
+            login_url = "https://api.icicidirect.com/apiuser/login?api_key="+(api_key)
+            print(login_url)
+            response = {'new_link': login_url}
+            current_app.logger.info(msg='New tab triggered')
+        except Exception as e:
+            print('Error in icici login', e)
+        return jsonify(response)
+
+@all_user.route('/icici_cred', methods = ['POST','GET']) 
+def input_cred():
     # Manual Session Key Input
     if request.method == 'POST' and 'session_key' in request.form:
         algo = Algo.query.filter_by(user_id=current_user.id).first()
@@ -95,10 +102,13 @@ def icici_login():
 
 
     try:
-        login_time = Algo.query.filter_by(user_id=current_user.id).first()
-        login_time = str(login_time.session_time).split('T')
+        
+        algo = Algo.query.filter_by(user_id=current_user.id).first()
+        login_url = "https://api.icicidirect.com/apiuser/login?api_key="+(algo.converted_key)
+        login_time = str(algo.session_time).split('T')
     
-        data = {'algo_time':f"{login_time[0]} Time : {login_time[1]}"}
+        data = {'algo_time':f"{login_time[0]} Time : {login_time[1]}",
+                'login_link' : login_url}
     except:
         data={'algo_time':'Please put you api first'}
     return render_template('user/icici_login.html', user = current_user, data = data)

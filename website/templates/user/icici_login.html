@@ -7,13 +7,14 @@
 
 <div class="cointainer-fluid">
     <p>Login Date & Time :: <span style="background-color:grey; color:azure" id="loginDate"> {{data['algo_time']}}</span></p>
-    <form  method="post" id="api_login">
+    <!-- <form  method="post" id="api_login">
         <input type="hidden" id="user_id" name="user_id" value="{{user.id}}">
         <button class="btn btn-secondary" type="submit" name="api_login">API LOGIN</button>
-    </form>
-    <!-- <a href="https://api.icicidirect.com/apiuser/login?api_key=i8582*146#NX60853w32X3*56nd8x8l0" target="_blank">This link will open in a new tab.</a> -->
+    </form> -->
+    
+    <a href="{{data['login_link']}}" target="_blank">Click Here for Api Login</a>
 
-    <form action="/icici_login" method="post">
+    <form action="/icici_cred" method="post">
         <label for="session_key">API KEY</label>
             <input class="form-control" type="number" name="session_key" id="" placeholder="session key">
         <button class="btn btn-secondary" type="submit" >SET SESSION KEY</button>
@@ -28,7 +29,7 @@
         API Details
       </button>
       <!-- <div class="collapse" id="collapseExample"> -->
-        <form class="hidden-form" action="/icici_login" method="post" id="myForm">
+        <form class="hidden-form" action="/icici_cred" method="post" id="myForm">
             
             <label for="api_id">API KEY</label>
             <input class="form-control" type="text" name="api_id" id="" placeholder="api key">
