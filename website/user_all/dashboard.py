@@ -105,6 +105,7 @@ def input_cred():
             api_key = Algo.query.filter_by(user_id = current_user.id).first()
             db.session.delete(api_key)
             db.session.commit()
+            flash('api deleted', 'info')
         except Exception as e:
             flash(f"{e}", 'error')
 
