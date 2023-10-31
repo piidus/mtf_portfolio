@@ -100,7 +100,7 @@ def input_cred():
             else:
                 flash('Api Entry Sucessfull', category='success')
     # Credential del
-    if request.method == 'POST' and 'cred_input' in request.form:
+    if request.method == 'POST' and 'cred_delete' in request.form:
         try:
             api_key = Algo.query.filter_by(user_id = current_user.id).first()
             db.session.delete(api_key)
