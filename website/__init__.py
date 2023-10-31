@@ -20,7 +20,7 @@ def create_app():
         filename='app.log',
         level=logging.DEBUG,
         format='%(asctime)s %(levelname)s %(name)s %(message)s'
-    )
+    ) 
 
 
     from .auth import auth

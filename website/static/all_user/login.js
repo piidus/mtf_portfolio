@@ -1,5 +1,8 @@
 // check date for last algo
 $(document).ready(function() {
+    // for api
+    var api = $("#api").val();
+    console.log('a  : '+api);
     // Get the span tag value
     var spanValue = $("#loginDate").text();
     // Split the span tag value to get the date.
