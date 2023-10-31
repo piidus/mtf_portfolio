@@ -46,7 +46,7 @@ $(document).ready(function(){
         var userId = $('#user_id').val();
         var param = 'login_api';
         const request = new Request('/icici_login',{
-            method : 'POST',
+            method : 'GET',
             headers : {
                 'Content-Type': 'application/json',
             },
@@ -71,24 +71,3 @@ $(document).ready(function(){
     })
 });
 
-
-
-// function check_url(){
-//     fetch('/check_url')
-//     .then(response => response.json())
-//     .then(data => {
-//         console.log(data);
-//     })
-//     .catch(err => {console.log('err2'+err);
-//     })
-// };
-
-//     // Function to monitor URL changes
-//     function checkURL() {
-//         // Function to log a message in the parent window's console
-//         function logInParentConsole(message) {
-//             if (window.opener && window.opener.console) {
-//                 window.opener.console.log(message);
-//             }
-//         }
-//     }

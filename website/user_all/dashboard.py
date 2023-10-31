@@ -19,7 +19,7 @@ def check_api_login_url():
     max_wait_time = 5  # Maximum time to wait (in seconds)
     polling_interval = 1  # Interval for checking the URL (in seconds)
     start_time = time.time()
-
+    
     # while time.time() - start_time <= max_wait_time:
     #     # Perform a check on the target_url, and if it meets the condition you require, break the loop
     #     # You might want to use libraries like requests to perform URL requests here.
@@ -33,29 +33,23 @@ def check_api_login_url():
     data = {'sns': 'I lave tou'}
     return jsonify(data)
 
-@all_user.route('/icici_login', methods = ['POST'])
-def icici_login():
-    
-    # if request.method == 'POST' : # and data['param'] == 'login_api':
-    if request.method == 'POST' and request.get_json().get('param') == 'login_api':  # Your code here
+@all_user.route('/icici_login/<string:id>/', methods = ['GET', 'POST'])
+def icici_login(id):
+    print('It Hitted : --------------------------------;', id)
+    apisession = request.args.get('apisession')
+    print(apisession)
+    if apisession:
         try:
-            data = request.get_json()
+            algo = Algo.query.filter_by(user_id = id).first()
+            algo.api_sesion = apisession
+            algo.session_time = datetime.datetime.now(pytz.timezone('Asia/Kolkata')).strftime('%Y-%h-%dT%H:%M:%S')
+            db.session.commit()
         except Exception as e:
             print(e)
-        # print(data)
-    
-        user_id = data['user_id']
-        api = Algo.query.filter_by(user_id = user_id).first()
-        api_key=api.converted_key        
-        try:
-            
-            login_url = "https://api.icicidirect.com/apiuser/login?api_key="+(api_key)
-            print(login_url)
-            response = {'new_link': login_url}
-            current_app.logger.info(msg='New tab triggered')
-        except Exception as e:
-            print('Error in icici login', e)
-        return jsonify(response)
+        last_five_digits = apisession[-8:]
+        print(f"Last 5 digits of apisession: {last_five_digits}")
+        # Add your custom code here to perform actions based on the last 5 digits
+    return "OK"
 
 @all_user.route('/icici_cred', methods = ['POST','GET']) 
 def input_cred():
@@ -113,7 +107,7 @@ def input_cred():
     data = {}
     try:
         algo = Algo.query.filter_by(user_id=current_user.id).first()
-        print(algo.converted_key)
+        # print(algo.converted_key)
         login_url = f"https://api.icicidirect.com/apiuser/login?api_key={algo.converted_key}"
         # print(login_url)
         
@@ -122,11 +116,11 @@ def input_cred():
         data['algo_time'] = 'Please put you api first'
     else:
         try:
+            # algo = Algo.query.filter_by(user_id=current_user.id).first()
             login_time = str(algo.session_time).split('T')
             # print("hello")    
             data['algo_time'] = f"{login_time[0]} Time : {login_time[1]}"
-            
-            
+                      
         except:
             data['algo_time'] = 'Please Login'
     # print('a',data)
