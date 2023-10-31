@@ -29,10 +29,10 @@
     <button class="btn btn-primary" type="button" id="toggleButton">
         API Details
       </button>
-      <span>{{user.id}}</span>
+      
       <!-- <div class="collapse" id="collapseExample"> -->
         <form class="hidden-form" action="/icici_cred" method="post" id="myForm">
-            
+            <div><span>https://mtf.piidus.in/icici_login/{{user.id}}/</span></div>
             <label for="api_id">API KEY</label>
             <input class="form-control" type="text" name="api_id" id="" placeholder="api key">
             <label for="api_sec">API SECRECT</label>
