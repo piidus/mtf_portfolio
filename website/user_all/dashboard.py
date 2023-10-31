@@ -99,7 +99,14 @@ def input_cred():
                 current_app.logger.error(f"{current_user.id} : Have some issue")
             else:
                 flash('Api Entry Sucessfull', category='success')
-
+    # Credential del
+    if request.method == 'POST' and 'cred_input' in request.form:
+        try:
+            api_key = Algo.query.filter_by(user_id = current_user.id).first()
+            db.session.delete(api_key)
+            db.session.commit()
+        except Exception as e:
+            flash(f"{e}", 'error')
 
     try:
         
