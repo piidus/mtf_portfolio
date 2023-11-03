@@ -39,3 +39,9 @@ class Algo(db.Model):
     api_sesion = db.Column(db.String(50), unique=False, nullable = True)
     session_time = db.Column(db.String(50), unique=False, nullable = True)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id')) 
+
+# Option Expiry Dates
+class Optionexpire(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(50), nullable=False)
+    end_date = db.Column(db.Date, nullable =False)
