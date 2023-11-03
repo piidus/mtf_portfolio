@@ -65,7 +65,7 @@ def stock_management():
             algo = Algo.query.filter_by(user_id=current_user.id).first()
             date_to_insert = expiry_dates(algo.api_key, algo.api_secret, algo.api_sesion, stock_name=stock_name, strike_pric=strike_price)
         except Exception as e:
-            flash(e, category='error')
+            flash(e+date_to_insert, category='error')
         else:
             if date_to_insert == None:
                 flash('Enter Correct Amount', category='Info')
