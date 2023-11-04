@@ -67,7 +67,7 @@ def insert_stocks_from_dataframe(data, model_name):
         if existing_data is None:
             try:
                 
-                print(row['ExchangeCode'], '****************************************')
+                # print(row['ExchangeCode'], '****************************************')
                 if row['CompanyName'] == np.nan:
                     com_name = row['ExchangeCode']
                 else:

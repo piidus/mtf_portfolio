@@ -1,6 +1,8 @@
 {% extends 'user_base.html'%}
 {% block title %} DashBoard {%endblock%}
 {% block body%}
-<h3>Hi</h3>
+<div class="page-header pt-3">
+    <h3> Hello : {{(user.first_name).upper()}}</h3>
+</div>
 
 {%endblock%}

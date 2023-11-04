@@ -3,7 +3,7 @@ try:
     from flask_login import login_user, login_required, logout_user, current_user
     import urllib, datetime, pytz, time
     from website.strategy import SessionKeyGenerator
-    from website.models import db, User, Algo
+    from website.models import db, User, Algo, Optionexpire
     from website.utils import Breeze_api, Icici_Connect
 except Exception as e:
     print('Error in user_all/dashboard.py', e)
@@ -148,4 +148,21 @@ def check_connection():
         data['date'] = datetime.datetime.now()
         return jsonify(data)
     
-        
+# Strategy Page functionns ***********************
+
+# main strategy page
+
+@all_user.route('/dashboard/strategy', methods = ['GET', 'POST'])
+def strategy_page():
+    if request.method == 'POST' and 'trade'in request.form:
+        stock_name = request.form.get('stock_name')
+        lot = request.form.get('lot')
+        expiry = request.form.get('expiry')
+        print('I Check', stock_name, lot, expiry)
+
+    # Return to page
+    current_date = datetime.datetime.now().date()
+    nifty = Optionexpire.query.filter_by(name = 'NIFTY').filter(Optionexpire.end_date >= current_date).all()    
+    nifty = sorted([i.end_date for i in nifty])
+    data = {'nifty': nifty}
+    return render_template('user/strategy.html', user = current_user, data = data)
