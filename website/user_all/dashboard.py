@@ -108,7 +108,7 @@ def input_cred():
     try:
         algo = Algo.query.filter_by(user_id=current_user.id).first()
         # print(algo.converted_key)
-        login_url = f"https://api.icicidirect.com/apiuser/login?api_key={algo.converted_key}"
+        login_url = f"https://api.icicidirect.com/apiuser/login?api_key={algo.api_key}"
         # print(login_url)
         
         data['login_link'] = login_url
