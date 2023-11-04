@@ -23,7 +23,7 @@ $(document).ready(function() {
     if (date < today) {
       // Color the span tag red
       $("#loginDate").css("background-color", "red");
-    }else($("#loginDate").css("background-color", 'green'))
+    }else($("#loginDate").css("background-color", 'Aquamarine'))
   });
 
 // Get references to the form and button

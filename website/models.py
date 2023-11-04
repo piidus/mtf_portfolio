@@ -45,3 +45,27 @@ class Optionexpire(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(50), nullable=False)
     end_date = db.Column(db.Date, nullable =False)
+
+class Equity(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    token = db.Column(db.String(10))
+    shortname = db.Column(db.String(30))
+    company_name = db.Column(db.String(50))
+    isin = db.Column(db.String(15))
+    exchange_name = db.Column(db.String(30))
+
+class Indices(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    token = db.Column(db.String(50))
+    shortname = db.Column(db.String(50))
+    company_name = db.Column(db.String(50))
+    isin = db.Column(db.String(15))
+    exchange_name = db.Column(db.String(30))
+
+class Sgb(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    token = db.Column(db.String(50))
+    shortname = db.Column(db.String(50))
+    company_name = db.Column(db.String(50))
+    isin = db.Column(db.String(15))
+    exchange_name = db.Column(db.String(30))

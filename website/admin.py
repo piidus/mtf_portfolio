@@ -1,7 +1,11 @@
 try:
     from flask import Blueprint, render_template, request, flash, redirect, url_for, abort, current_app
     from flask_login import login_required, current_user
-    from .models import User, Algo, Role, db, Optionexpire
+    from sqlalchemy.exc import PendingRollbackError, DataError
+    import zipfile
+    import pandas as pd
+    import numpy as np
+    from .models import User, Algo, Role, db, Optionexpire, Equity, Indices, Sgb
     from .utils import expiry_dates
 except Exception as e:
     print('Admin Import', e)
@@ -53,6 +57,35 @@ def role_section():
             'roles': roles}
     return render_template('admin/user_setting.html', user = current_user, data = data)
 
+# Insert stock name to database
+def insert_stocks_from_dataframe(data, model_name):
+    # Iterate through the DataFrame and insert data if it doesn't exist in the table
+    for index, row in data.iterrows():
+        token = row['Token']
+        existing_data = model_name.query.filter_by(token=token).first()
+
+        if existing_data is None:
+            try:
+                
+                print(row['ExchangeCode'], '****************************************')
+                if row['CompanyName'] == np.nan:
+                    com_name = row['ExchangeCode']
+                else:
+                    com_name = row['CompanyName']
+                new_data = model_name(token = row['Token'], shortname = row['ShortName'], company_name = com_name,
+                                    isin = row['ISINCode'], exchange_name= row['ExchangeCode'] )
+                db.session.add(new_data)
+                db.session.commit()
+            except DataError as e:
+                # Handle the DataError (e.g., log the error, notify the user, etc.)
+                print(f"DataError: {e}")
+                db.session.rollback()  # Clear the pending rollback state
+            except PendingRollbackError:
+                # Rollback the transaction to clear the pending rollback state
+                db.session.rollback()
+            except Exception as e:
+                msg = f"{row['ShortName']}  :  {e}"
+                current_app.logger.error(msg=msg)
 # Stock Management
 @admin.route('sudiip/stock', methods=['POST', 'GET'])
 def stock_management():
@@ -65,6 +98,7 @@ def stock_management():
             algo = Algo.query.filter_by(user_id=current_user.id).first()
             date_to_insert = expiry_dates(algo.api_key, algo.api_secret, algo.api_sesion, stock_name=stock_name, strike_pric=strike_price)
         except Exception as e:
+
             flash(e+date_to_insert, category='error')
         else:
             if date_to_insert == None:
@@ -94,6 +128,46 @@ def stock_management():
                 db.session.commit()
 
                 flash('it works', category='success')
+
+    # Stock Zip entry
+    if request.method == 'POST' and "icici_stock_zip" in request.form:
+        # Check File Name
+        file =request.files['file1']
+        file_name = file.filename
+        if file_name.split('.')[-1] == 'zip':
+            with zipfile.ZipFile(file) as zip_file:
+                zip_file.extractall('website/static/temp_stock')
+            df = pd.read_csv(filepath_or_buffer="website/static/temp_stock/NSEScripMaster.txt")
+
+            filered_column = ['Token', ' "ShortName"', ' "Series"', ' "CompanyName"', ' "ISINCode"', ' "ExchangeCode"']
+            df = df[filered_column]
+            df.columns = ['Token', 'ShortName', 'Series', 'CompanyName', 'ISINCode', 'ExchangeCode']
+            df['Series'] = df['Series'].replace('0', 'IDX')
+            df = df[df['Series'].isin(['IDX', 'EQ', 'GB'])]
+
+            # Fill NaN values in the 'name' column with values from the 'title' column
+            df['CompanyName'].fillna(df['ExchangeCode'], inplace=True)
+            df['ISINCode'].fillna(df['ShortName'], inplace=True)
+            
+            df_indices = df[df['Series']=='IDX'].reset_index(drop=True)
+            df_equity = df[df['Series']=='EQ'].reset_index(drop=True)
+            df_sgb = df[df['Series']=='GB'].reset_index(drop=True)
+            # Drop rows where Column_A has value 0 or NaN
+            # df_equity['Token'].astype(dtype='int64')
+            df_equity = df_equity.dropna(subset=['Token'])
+            df_equity = df_equity[~df_equity['Token'].isin(["0", "00"])].reset_index(drop=True)
+            print(df_sgb)
+            try:
+              # Check if the book table exists
+                insert_stocks_from_dataframe(df_equity, model_name= Equity)
+                insert_stocks_from_dataframe(df_indices, model_name= Indices)
+                insert_stocks_from_dataframe(df_sgb, model_name= Sgb)
+            except Exception as e:
+                print(e)
+
+        else:
+            flash('Check Your file', category='error') 
+    
     # RETURN SECTION
     
     data = {}

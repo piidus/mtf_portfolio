@@ -21,7 +21,7 @@ class Breeze_api:
             cls.__instance = new_api_connection
             return cls.__instance
         else:
-            print('WARNING : There\'s already an instance Breeze of connection')
+            print('WARNING : There\'s already an Breeze instance of connection')
             return cls.__instance
 
     def __init__(self, api_key, api_secret, api_session ):
@@ -63,13 +63,13 @@ class Icici_Connect:
         '''api key, api session
         return api obj'''
         if cls.__instance is None:
-            print('Connecting ......')
+            print('Connecting pyton api......')
             new_api_connection = connection(api_key, session_token )
             cls.__instance = super(Icici_Connect, cls).__new__(cls)
             cls.__instance = new_api_connection
             return cls.__instance
         else:
-            print('WARNING : There\'s already an instance of connection')
+            print('WARNING : There\'s already an python instance of connection')
             return cls.__instance
 
     def __init__(self, api_key, session_token):
