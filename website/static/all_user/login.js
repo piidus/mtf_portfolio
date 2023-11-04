@@ -2,7 +2,7 @@
 $(document).ready(function() {
     // for api
     var api = $("#api").val();
-    console.log('a  : '+api);
+    // console.log('a  : '+api);
     // Get the span tag value
     var spanValue = $("#loginDate").text();
     // Split the span tag value to get the date.
@@ -70,4 +70,23 @@ $(document).ready(function(){
         .catch(err => {console.log('error1:: '+err)})
     })
 });
+
+// Check Connection button
+const connButton = document.getElementById("connection");
+connButton.addEventListener('click', function(){
+    fetch('/check_connection')
+    .then(response => response.json())
+    .then(data => {
+        // console.log(data)
+        if (data.connection === 1 && data.total_token ===1){
+            alert("Connection Is on")
+        } else{
+            alert('Please Login in api')
+        }
+
+        
+    } )
+    .catch(err => console.log(err))
+    ;
+})
 

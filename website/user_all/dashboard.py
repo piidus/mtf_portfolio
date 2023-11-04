@@ -1,9 +1,10 @@
 try:
     from flask import Blueprint, render_template, flash, current_app, request, redirect, url_for, jsonify, make_response
     from flask_login import login_user, login_required, logout_user, current_user
+    import urllib, datetime, pytz, time
     from website.strategy import SessionKeyGenerator
     from website.models import db, User, Algo
-    import urllib, datetime, pytz, time
+    from website.utils import Breeze_api, Icici_Connect
 except Exception as e:
     print('Error in user_all/dashboard.py', e)
 
@@ -125,3 +126,26 @@ def input_cred():
             data['algo_time'] = 'Please Login'
     # print('a',data)
     return render_template('user/icici_login.html', user = current_user, data = data)
+
+# Check Connection 
+@all_user.route('/check_connection', methods = ['GET', 'POST'])
+def check_connection():
+    algo = Algo.query.filter_by(user_id = current_user.id).first()
+    data = {}
+    try:
+        api = Breeze_api(api_key=algo.api_key, api_secret=algo.api_secret, api_session=algo.api_sesion)
+        _, _, icici = Icici_Connect(api_key=algo.api_key, session_token=algo.api_sesion)
+        
+    except Exception as e:
+        print(e)
+       
+        data['connection'] = 0
+        data['date'] = datetime.datetime.now()
+        return jsonify(data)
+    else:
+        data['total_token'] = 1
+        data['connection'] = 1
+        data['date'] = datetime.datetime.now()
+        return jsonify(data)
+    
+        
