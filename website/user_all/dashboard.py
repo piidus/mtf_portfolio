@@ -1,7 +1,7 @@
 try:
     from flask import Blueprint, render_template, flash, current_app, request, redirect, url_for, jsonify, make_response
     from flask_login import login_user, login_required, logout_user, current_user
-    import urllib, datetime, pytz, time
+    import urllib, datetime, pytz, time, json
     from website.strategy import SessionKeyGenerator
     from website.models import db, User, Algo, Optionexpire
     from website.utils import Breeze_api, Icici_Connect
@@ -163,6 +163,11 @@ def strategy_page():
     # Return to page
     current_date = datetime.datetime.now().date()
     nifty = Optionexpire.query.filter_by(name = 'NIFTY').filter(Optionexpire.end_date >= current_date).all()    
-    nifty = sorted([i.end_date for i in nifty])
-    data = {'nifty': nifty}
+    # print(nifty)5
+    nifty = sorted([i.end_date.strftime('%Y-%m-%d') for i in nifty])
+    # print(nifty)
+    data = {}
+    data['expiry'] = {'nifty': nifty}
+    # data = json.dumps(data)
+    # print(data)
     return render_template('user/strategy.html', user = current_user, data = data)
