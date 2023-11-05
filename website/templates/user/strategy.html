@@ -6,12 +6,12 @@
 {% block title %} Strategy Page {%endblock%}
 {% block body%}
 <div class="container">
-    <button onclick="hideOrShowDiv('sherStrangleForm')">Share Geniuous Strangle</button>
+    <button id="sherStarButton">Share Geniuous Strangle</button>
     <button id="sanuMagic" title="In Demo Purpose" disabled>Sanu Magic</button>
 </div>
 <hr>
-<div class="container">
-    <table class="display-none" id="sherStrangleForm">
+<div class="container" id="sherdiv">
+    <table class="display-none" id="sherStrangleForm" style="display: none;">
         <thead>
             <tr>
                 <td>Index</td>
@@ -24,8 +24,11 @@
             
             <tr>
                 <form action="/dashboard/strategy" method="post">
+                    
                 <td>
-                    <select name="stock_name" id="stockName" onchange="expiryfetch({{data.expiry}})">
+                    <select name="stock_name" id="stockName" onclick="expiryfetch({{data.expiry}})" >
+                        
+                        <option value="-- Select from list --" selected>-- Select from list --</option>
                         <option value="NIFTY">NIFTY</option>
                         <option value="CNXBAN">BANK NIFTY</option>
                     </select>
@@ -53,12 +56,7 @@
         </tbody>
     </table>
 </div>
-<!-- {% for i in data.expiry.nifty %}
-    <li>{{i}}</li>
-{% endfor %} -->
-<script>
-    // var data = {{ data|safe  }};
-</script>
+
 {%endblock%}
 {% block js %}
 <script src="{{url_for('static', filename = 'all_user/strategy.js')}}" type="text/javascript"></script>

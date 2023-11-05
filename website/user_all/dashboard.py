@@ -158,16 +158,19 @@ def strategy_page():
         stock_name = request.form.get('stock_name')
         lot = request.form.get('lot')
         expiry = request.form.get('expiry')
-        print('I Check', stock_name, lot, expiry)
+        flash(message=('I Check', stock_name, lot, expiry), category='info')
 
     # Return to page
     current_date = datetime.datetime.now().date()
     nifty = Optionexpire.query.filter_by(name = 'NIFTY').filter(Optionexpire.end_date >= current_date).all()    
-    # print(nifty)5
-    nifty = sorted([i.end_date.strftime('%Y-%m-%d') for i in nifty])
-    # print(nifty)
+    nifty_ = sorted([i.end_date.strftime('%Y-%m-%d') for i in nifty])
+    bnknifty = Optionexpire.query.filter_by(name = 'CNXBAN').filter(Optionexpire.end_date >= current_date).all()    
+    # print(bnknifty)
+    bnknifty_ = sorted([i.end_date.strftime('%Y-%m-%d') for i in bnknifty])
+    # print(bnknifty_)
     data = {}
-    data['expiry'] = {'nifty': nifty}
+    data['expiry'] = {'nifty': nifty_,
+                      'bnknifty' : bnknifty_}
     # data = json.dumps(data)
-    # print(data)
+    # data = 2
     return render_template('user/strategy.html', user = current_user, data = data)
