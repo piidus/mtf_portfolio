@@ -10,7 +10,6 @@ function hideOrShowDiv(divId) {
 }
 
 function expiryfetch(data){
-  var expiry = document.getElementById('expiryDates').textContent;
   
   console.log(data.nifty.length)
   var numbers = data.nifty
