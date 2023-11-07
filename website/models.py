@@ -46,20 +46,12 @@ class Optionexpire(db.Model):
     name = db.Column(db.String(50), nullable=False)
     end_date = db.Column(db.Date, nullable =False)
 
-class Equity(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    token = db.Column(db.String(10))
-    shortname = db.Column(db.String(30))
-    company_name = db.Column(db.String(50))
-    isin = db.Column(db.String(15))
-    exchange_name = db.Column(db.String(30))
-
 class Indices(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     token = db.Column(db.String(50))
     shortname = db.Column(db.String(50))
     company_name = db.Column(db.String(50))
-    isin = db.Column(db.String(15))
+    isin = db.Column(db.String(50))
     exchange_name = db.Column(db.String(30))
 
 class Sgb(db.Model):
@@ -69,3 +61,31 @@ class Sgb(db.Model):
     company_name = db.Column(db.String(50))
     isin = db.Column(db.String(15))
     exchange_name = db.Column(db.String(30))
+
+# Define the junction table to represent the many-to-many relationship
+equity_tag = db.Table(
+    'equity_tag',
+    db.Column('equity_id', db.Integer, db.ForeignKey('equities.id')),
+    db.Column('tag_id', db.Integer, db.ForeignKey('tags.id'))
+)
+
+
+class Equity(db.Model):
+    __tablename__ = 'equities'
+    id = db.Column(db.Integer, primary_key=True)
+    token = db.Column(db.String(10))
+    shortname = db.Column(db.String(30))
+    company_name = db.Column(db.String(50))
+    isin = db.Column(db.String(15))
+    exchange_name = db.Column(db.String(30))
+    # Define the many-to-many relationship with the "Tag" model
+    tags = db.relationship('Tag', secondary=equity_tag, back_populates='equities', cascade="save-update")
+
+class Tag(db.Model):
+    __tablename__ = 'tags'
+    id = db.Column(db.Integer, primary_key=True)
+    tagname = db.Column(db.String(30))
+    tag_description = db.Column(db.String(70))
+    # Define the many-to-many relationship with the "Equity" model
+    equities = db.relationship('Equity', secondary=equity_tag, back_populates='tags')
+    

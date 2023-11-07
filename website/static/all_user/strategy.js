@@ -17,11 +17,13 @@ function expiryfetch(data) {
 
   
   // console.log(nifty)
-  var secondOption = document.getElementById('expiry')
+  var secondOption = document.getElementById('expiry');
+  while (secondOption.options.length > 0){
+    secondOption.remove(0)}
   if (stockName === 'NIFTY') {
-    while (secondOption.options.length > 0){
-      secondOption.remove(0)
-    }
+    // while (secondOption.options.length > 0){
+    //   secondOption.remove(0)
+    // }
     for (let i = 0; i < data.nifty.length; i++) {
       var option = document.createElement('option');
       option.value = data.nifty[i];
@@ -29,9 +31,9 @@ function expiryfetch(data) {
       secondOption.appendChild(option);
     }
   } else if(stockName === 'CNXBAN') {
-    while (secondOption.options.length > 0){
-      secondOption.remove(0)
-    }
+    // while (secondOption.options.length > 0){
+    //   secondOption.remove(0)
+    // }
     for (let i = 0; i < data.bnknifty.length; i++) {
       var option = document.createElement('option');
       option.value = data.bnknifty[i];

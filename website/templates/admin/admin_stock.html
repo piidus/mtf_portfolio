@@ -11,7 +11,14 @@
     <button type="button" class="btn btn-secondary" id="stockentry" onclick="hideOrShowDiv('stockEntry')">STOCK
         ENTRY</button>
     </button>
+    <button type="button" class="btn btn-secondary" id="tagkentry" onclick="hideOrShowDiv('tagEntry')">TAG
+        ENTRY</button>
+    </button>
+    <button type="button" class="btn btn-secondary" id="tagkentry" onclick="hideOrShowDiv('stockManagement')">Stock
+        Management</button>
+    </button>
     <br>
+    <hr>
     <!-- expiry table -->
     <div id="expiryDate" class="display-none">
         <table id="stockrole">
@@ -46,12 +53,108 @@
     <!-- Stock Entry form -->
     <div id="stockEntry" class="display-none">
         <form action="/sudiip/stock" method="post" enctype="multipart/form-data">
-            <input type="file" name="file1" class="form-control">
-    
-    <button type="submit" class="btn btn-primary" name="icici_stock_zip">Upload</button>
-    </form>
+            <input type="file" name="file1" class="form-control" required>
+
+            <button type="submit" class="btn btn-primary" name="icici_stock_zip">Upload</button>
+        </form>
     </div>
-    {%endblock%}
-    {% block js %}
-    <script src="{{url_for('static', filename = 'admin/stock.js')}}" type="text/javascript"></script>
-    {%endblock%}
+    <dIv id="tagEntry" class="display-none">
+        <form action="/sudiip/stock" method="post">
+            <label for="tagName">Tag Name</label>
+            <input type="text" name="tagName" id="" required>
+            <label for="tagDes">Tag Description</label>
+            <input type="text" name="tagDes" id="" required>
+            <button type="submit" class="btn-outline-success">Save</button>
+        </form>
+        <hr>
+        {% for tag in data.tags %}
+        <tr>
+            <form action="/sudiip/stock" method="post" enctype="multipart/form-data">
+                <td><input type="hidden" name="tagId" value="{{tag.id}}"></td>
+                <td>{{ tag.tagname}}</td>
+                <td> {{tag.tag_description}} </td>
+                <td><button type="submit" name="tagDel">Del Tag</button></td>
+                <td><input type="file" name="tagMap" id="" style="background-color: burlywood;"></td>
+                <td><button type="submit" name="mapStock">Map Stock</button></td>
+            </form>
+        </tr>
+        {% endfor %}
+    </dIv>
+    <div id="stockManagement" class="display-none">
+        <h1>Equity Table</h1>
+
+        <!-- <input type="text" id="tagFilter" placeholder="Filter by Tag"> -->
+
+        
+    
+        <label for="tag_filter">Filter by Tag:</label>
+        <select name="tag_filter" id="tag_filter">
+            <option value="">All</option>
+            {% for tag in data.tags %}
+                <option value="{{ tag.tagname }}">{{ tag.tagname }}</option>
+            {% endfor %}
+        </select>
+        <!-- <button type="submit">Filter</button> -->
+    
+
+    <table>
+        <thead>
+            <tr>
+                <th>Equity Name</th>
+                <th>Tag(s)</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody id="equityTable">
+            {% for equity in equities %}
+                <tr>
+                    <td>{{ equity.shortname }}</td>
+                    <td class="tags">
+                        {% for tag in equity.tags %}
+                            {{ tag.tagname }}{% if not loop.last %}, {% endif %}
+                        {% endfor %}
+                    </td>
+                    <td>
+                        <form method="POST" action="/delete_equity/{{ equity.id }}" class="deleteForm">
+                            <input type="hidden" name="equity_id" value="{{ equity.id }}">
+                            <button type="submit">Delete</button>
+                        </form>
+                    </td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <script>
+         // Get a reference to the select element and the table body
+    const tagFilter = document.getElementById('tag_filter');
+    const equityTable = document.getElementById('equityTable');
+
+    // Add an event listener to the select element
+    tagFilter.addEventListener('change', () => {
+        const selectedTag = tagFilter.value;
+
+        // Get all rows in the table
+        const rows = equityTable.querySelectorAll('tr');
+
+        // Loop through each row and hide/show based on the selected tag
+        rows.forEach(row => {
+            const tagCell = row.querySelector('.tags');
+            if (tagCell) {
+                const tags = tagCell.textContent;
+                if (selectedTag === '' || tags.includes(selectedTag)) {
+                    row.style.display = 'table-row';
+                } else {
+                    row.style.display = 'none';
+                }
+            }
+        });
+    });
+    </script>
+    
+    </div>
+</div>
+{%endblock%}
+{% block js %}
+<script src="{{url_for('static', filename = 'admin/stock.js')}}" type="text/javascript"></script>
+{%endblock%}

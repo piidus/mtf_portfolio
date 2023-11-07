@@ -5,7 +5,7 @@ try:
     import zipfile
     import pandas as pd
     import numpy as np
-    from .models import User, Algo, Role, db, Optionexpire, Equity, Indices, Sgb
+    from .models import User, Algo, Role, db, Optionexpire, Equity, Indices, Sgb, Tag, equity_tag
     from .utils import expiry_dates
 except Exception as e:
     print('Admin Import', e)
@@ -167,8 +167,61 @@ def stock_management():
 
         else:
             flash('Check Your file', category='error') 
+    #################### TAG SECTION ##########################
+    # Tag Entry
+    if request.method == 'POST' and "tagName" in request.form:
+        tagname = request.form.get('tagName')
+        tagdescription = request.form.get('tagDes')
+        print(tagname, tagdescription)
+        tag = Tag(tagname = tagname, tag_description = tagdescription)
+        db.session.add(tag)
+        db.session.commit()
+        flash("Tag added", category='success')
+    # Tag delete
+    if request.method == 'POST' and "tagDel" in request.form:
+        tagid = int(request.form.get('tagId'))
+        tag = Tag.query.filter_by(id = tagid).first()
+        # Remove the tag from associated equities (optional, depends on your use case)
+        for equity in tag.equities:
+            tag.equities.remove(equity)
+            db.session.commit()
+        db.session.delete(tag)
+        db.session.commit()
+        flash('tag Deleted Sucessfullt', category='info')
     
+    # Tag Mapping
+    if request.method == 'POST' and "mapStock" in request.form:
+        # print('it trigger')
+        tagid = request.form.get('tagId')
+        tag = Tag.query.filter_by(id = tagid).first()
+        # tag = tag.tagname
+        file = request.files['tagMap']
+        if file :
+            try:
+                data = pd.read_csv(file)
+                process_uploaded_csv(data, tag)
+            except Exception as e:
+                print(e)
+            flash('ok', 'Success')
+        else:
+            flash('Please provide a file', 'error')
+
     # RETURN SECTION
-    
+    equities = Equity.query.all()
     data = {}
-    return render_template('admin/admin_stock.html', user = current_user, data = data)
+    data['tags'] = Tag.query.all()
+    return render_template('admin/admin_stock.html', user = current_user, data = data, equities= equities)
+
+def process_uploaded_csv(data, tag):
+    for index, row in data.iterrows():
+        
+        isin_ = row['ISIN Code']  # Assuming 'equity' is the column name in the CSV
+
+        equity = Equity.query.filter_by(isin=isin_).first()
+        if equity:
+              # Check if the association already exists
+            existing_association = db.session.query(equity_tag).filter_by(equity_id=equity.id, tag_id=tag.id).first()
+            if not existing_association:
+                # Associate the equity with the tag
+                tag.equities.append(equity)
+                db.session.commit()
