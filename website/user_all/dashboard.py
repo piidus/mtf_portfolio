@@ -134,7 +134,7 @@ def check_connection():
     data = {}
     try:
         api = Breeze_api(api_key=algo.api_key, api_secret=algo.api_secret, api_session=algo.api_sesion)
-        _, _, icici = Icici_Connect(api_key=algo.api_key, session_token=algo.api_sesion)
+        _, _, icici = Icici_Connect(api_key=algo.api_key, api_session=algo.api_sesion)
         
     except Exception as e:
         print(e)
