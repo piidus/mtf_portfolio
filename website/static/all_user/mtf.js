@@ -76,7 +76,7 @@ function fetchData() {
 }
 
 // Call fetchData initially (you can remove this line if you want to start after the first minute)
-// fetchData();
+fetchData();
 
 // Schedule the fetchData function to run every one minute (60,000 milliseconds)
-setInterval(fetchData, 15000);
+setInterval(fetchData, 30000);

@@ -5,8 +5,16 @@
 {%endblock%}
 {% block title %} Strategy Page {%endblock%}
 {% block body%}
-
-<h3>MTF</h3>
+<form action="/mtf" method="post">
+    <select name="tags" id="">
+        {% for tag in data.tags %}
+        <option value="{{tag}}">{{tag}}</option>
+        {% endfor %}
+    </select>
+    <input type="number" name="" id="">
+        <button type="submit" name="tagSearch">Search</button>
+    
+</form>
 <table>
     <thead>
         <th> stock name</th>

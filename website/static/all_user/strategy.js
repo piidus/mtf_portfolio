@@ -1,3 +1,5 @@
+
+// Option Dates Section /////////////////////////////////////////////
 const hideOrShowDiv = document.getElementById("sherStarButton");
 const div = document.getElementById("sherStrangleForm");
 hideOrShowDiv.addEventListener('click', function () {
@@ -42,3 +44,5 @@ function expiryfetch(data) {
     }
   };
 };
+
+////////////// 

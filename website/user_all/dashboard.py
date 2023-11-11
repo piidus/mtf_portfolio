@@ -1,9 +1,9 @@
 try:
     from flask import Blueprint, render_template, flash, current_app, request, redirect, url_for, jsonify, make_response
     from flask_login import login_user, login_required, logout_user, current_user
-    import urllib, datetime, pytz, time, json
-    from website.strategy import SessionKeyGenerator
-    from website.models import db, User, Algo, Optionexpire
+    import urllib, datetime, pytz, time, uuid
+    from website.strategy import ShareGeniousStrangle
+    from website.models import db, User, Algo, Optionexpire, Advance_order
     from website.utils import Breeze_api, Icici_Connect
 except Exception as e:
     print('Error in user_all/dashboard.py', e)
@@ -151,14 +151,41 @@ def check_connection():
 # Strategy Page functionns ***********************
 
 # main strategy page
-
+@login_required
 @all_user.route('/dashboard/strategy', methods = ['GET', 'POST'])
 def strategy_page():
     if request.method == 'POST' and 'trade'in request.form:
         stock_name = request.form.get('stock_name')
         lot = request.form.get('lot')
         expiry = request.form.get('expiry')
-        flash(message=('I Check', stock_name, lot, expiry), category='info')
+        if expiry:
+            try:
+                print('stock_name :', stock_name, "lot", lot, 'expiry : ', expiry)
+                uid = f"{current_user.id}-{str(uuid.uuid4().int)}"
+                # created = datetime.datetime.now().replace(microsecond=0)
+                # Save To Database
+                adv = Advance_order(strategy = 'sherowl', symbol = stock_name, u_no = uid, user_id = current_user.id)
+                db.session.add(adv)
+                db.session.commit()
+                # strangle = ShareGeniousStrangle(stock_name=stock_name, expiry=expiry, lot=lot, uid = uid)
+                flash(message=('I Check', stock_name, lot, expiry), category='info')
+            except Exception as e:
+                flash(f'Please contact to Admin :: {e}', category= 'error')
+        else:
+            flash('Please Check Expiry Dates', 'error')
+    # Delete a Order
+    # Delete a order
+    if request.method == 'POST' and 'order_delete' in request.form:
+        try:
+            id_ = request.form.get('order_id')
+            row = Advance_order.query.filter_by(id = id_).first()
+            row.status = 'stop'
+            db.session.commit()
+            flash(message='order stopped', category='info')
+
+        except Exception as e:
+            flash(message=e, category='error')
+        return redirect(url_for('all_user.strategy_page'))
 
     # Return to page
     current_date = datetime.datetime.now().date()
@@ -168,9 +195,11 @@ def strategy_page():
     # print(bnknifty)
     bnknifty_ = sorted([i.end_date.strftime('%Y-%m-%d') for i in bnknifty])
     # print(bnknifty_)
+    all_order = Advance_order.query.filter_by(user_id = current_user.id, status = 'due').all()[::-1]
     data = {}
     data['expiry'] = {'nifty': nifty_,
                       'bnknifty' : bnknifty_}
+    data['orders'] = all_order
     # data = json.dumps(data)
     # data = 2
     return render_template('user/strategy.html', user = current_user, data = data)

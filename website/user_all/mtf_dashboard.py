@@ -12,23 +12,34 @@ mtf_user = Blueprint('mtf_user', __name__)
 @login_required
 @mtf_user.route('/mtf', methods = ['POST', 'GET'])
 def mtf_home():
+    tag_name = ""
+    if request.method == 'POST' and 'tagSearch' in request.form:
+        tag_name = request.form.get('tags')
     now = datetime.datetime.now().date()
     algo = Algo.query.filter_by(user_id = 2).first()
     print('algo id ::', algo.session_time)
     conn = Icici_Connect(api_key=algo.api_key, api_session=algo.api_sesion)
-    print(conn)
+    # print(conn)
     session['userid'] = conn[0]
     session['token'] = conn[1]
     # ohlc = start_connection(userid=conn[0], token=conn[1])
-    tag_name = "nifty"
-    print(tag_name)
+    
+    # print(tag_name)
     # Query equities filtered by the tag name
     try:
+        tags = Tag.query.all()
+        # for i in tags:
+        #     print(i.tagname)
+        tags = [i.tagname for i in tags]
+        tag_length = len(tags)
+        # print(tags)
         equities = Equity.query.join(Equity.tags).filter(Tag.tagname == tag_name).all()
     except Exception as e:
         print(e)
     data = {'equities': equities,
-            'conn':conn}
+            'conn':conn,
+            'tags': tags,
+            'taglength': tag_length}
     
     return render_template('user/mtf_dashboard.html', user = current_user, data = data )
 
