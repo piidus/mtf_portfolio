@@ -5,6 +5,7 @@ try:
     from website.strategy import ShareGeniousStrangle
     from website.models import db, User, Algo, Optionexpire, Advance_order
     from website.utils import Breeze_api, Icici_Connect
+    # from main import app
 except Exception as e:
     print('Error in user_all/dashboard.py', e)
 
@@ -160,14 +161,18 @@ def strategy_page():
         expiry = request.form.get('expiry')
         if expiry:
             try:
-                print('stock_name :', stock_name, "lot", lot, 'expiry : ', expiry)
+                # print('stock_name :', stock_name, "lot", lot, 'expiry : ', expiry)
                 uid = f"{current_user.id}-{str(uuid.uuid4().int)}"
                 # created = datetime.datetime.now().replace(microsecond=0)
                 # Save To Database
                 adv = Advance_order(strategy = 'sherowl', symbol = stock_name, u_no = uid, user_id = current_user.id)
                 db.session.add(adv)
                 db.session.commit()
-                # strangle = ShareGeniousStrangle(stock_name=stock_name, expiry=expiry, lot=lot, uid = uid)
+                try:
+                    from main import app
+                except Exception as e:
+                    print(e)
+                strangle = ShareGeniousStrangle(stock_name=stock_name, expiry=expiry, lot=lot, uid = uid, app=app)
                 flash(message=('I Check', stock_name, lot, expiry), category='info')
             except Exception as e:
                 flash(f'Please contact to Admin :: {e}', category= 'error')

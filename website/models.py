@@ -2,7 +2,8 @@ from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy import Column, DateTime, func, Integer, String
 from flask_mail import Mail
 from flask_login import UserMixin
-import datetime
+
+
 
 mail = Mail()
 

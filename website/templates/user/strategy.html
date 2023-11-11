@@ -62,6 +62,7 @@
 <div class="cointainer">
     <table class="table">
       <thead>
+        <th>Action</th>
         <th>Name</th>
         <th>STRATEGY</th>
         <th>Percentage</th>
@@ -71,13 +72,13 @@
         {% for order in data.orders %}
         <tr>
           <form action="/dashboard/strategy" method="post">
-
+            <td><button type="submit" name="order_delete">Delete</button></td>
             <td><input type="text" style="border: none;" name="symbol" value="{{order.symbol}}"></td>
             <td><span><input type="text" style="border: none;" name="symbol" value="{{order.strategy}}"></span></td>
             <!-- <td><input type="text" style="border: none;" name="symbol" value="{{order.percentage}}"></td> -->
             <td><span><input type="hidden" name="order_id" value="{{order.id}}"></span></td>
             <td><input type="text" style="border: none;" name="symbol" value="{{order.status}}"></td>
-            <td><button type="submit" name="order_delete">Delete</button></td>
+            
           </form>
         </tr>
         <!-- class="visually-hidden" -->
