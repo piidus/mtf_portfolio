@@ -27,10 +27,11 @@ class TradeDecesion:
                             query = query.filter(column == filter_value)
 
                     search_data = query.first()
-                    
+                    self.__app.logger.info(f"'in utils QueryExternal:', {search_data}")
                     # print(search_data.u_no)
                 except Exception as e:
                     print('in utils QueryExternal:', e)
+                    self.__app.logger.error(f"'in utils QueryExternal:', {e}")
                     session.rollback()
                 else:
                     if search_data:
@@ -39,6 +40,7 @@ class TradeDecesion:
                     session.close()
         except Exception as e:
             print('Exception in __check_database:', e)
+            self.__app.logger.error(f"'in utils QueryExternal:', {e}")
 
 
     def save_in_loop(self, model: object, data:dict):
@@ -49,8 +51,10 @@ class TradeDecesion:
                     new_record = model(**data)
                     session.add(new_record)
                     session.commit()  # Commit the new record
+                    self.__app.logger.info(f"'in utils Save in loop:', {model}")
                 except Exception as e:
                     print('Error saving data:', e)
+                    self.__app.logger.debug(f"'Error saving data::', {e}")
                     session.rollback()  # Roll back the changes in case of an error
                 finally:
                     session.close()

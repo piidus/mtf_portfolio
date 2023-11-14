@@ -99,7 +99,8 @@ class ShareGeniousStrangle:
         if abs(call_ltp - put_ltp) < 1/3 * max(call_ltp, put_ltp):
             print("The difference is less than 2/3.")
             self.trade(app, db, order_table, userid)
-            
+            self.trade(app, db, right='call', strike_price=self.call_strike, userid= userid)
+            self.trade(app, db, right='put', strike_price=self.put_strike, userid= userid)
         else:
             # Get the high value
             high_value = max(call_ltp,  put_ltp)
@@ -114,7 +115,8 @@ class ShareGeniousStrangle:
                 put_strike_ = round(put_df_.head(1)['strike_price'].values[0])
                 print(put_strike_)
                 self.put_strike = put_strike_
-                self.trade(app, db, order_table, userid)
+                self.trade(app, db, right='call', strike_price=self.call_strike, userid= userid)
+                self.trade(app, db, right='put', strike_price=self.put_strike, userid= userid)
             
             
             else:
@@ -124,18 +126,19 @@ class ShareGeniousStrangle:
                 call_strike_= round(call_df_.tail(1)['strike_price'].values[0])
                 print(call_strike_)
                 self.call_strike = call_strike_
-                self.trade(app, db, order_table, option_table,  userid)
+                self.trade(app, db, right='call', strike_price=self.call_strike, userid= userid)
+                self.trade(app, db, right='put', strike_price=self.put_strike, userid= userid)
                 
 
             
             print(f"The difference is not less than 1/3. The high value is {high_value}, and 2/3 of the high value is {two_thirds_high_value}.")
-    def trade(self, app, db, order_table, option_table, userid):
+    def trade(self, app, db, right, strike_price,  userid):
         order_api = FnoOrderManagement(api=self.__breeze_api) # first activate api
         
         try:
-            call_id = order_api.place_order(stock_code=self.__stock_name, expiry_date=self.__expiry_date, quantity=self.quantity, right='call', strike_price=self.call_strike)
+            order_id = order_api.place_order(stock_code=self.__stock_name, expiry_date=self.__expiry_date, quantity=self.quantity, right=right, strike_price=strike_price)
             try:
-                search_data = {'ShortName': self.__stock_name, 'ExpiryDate': self.__expiry_date,'StrikePrice': self.call_strike }
+                search_data = {'ShortName': self.__stock_name, 'ExpiryDate': self.__expiry_date,'StrikePrice': strike_price }
                 # print(search_data)
                 
                 db_operate = TradeDecesion(app, db, self.__uid).check_database(model=OptionTable, filter_criteria=search_data)
@@ -143,14 +146,15 @@ class ShareGeniousStrangle:
                 print(db_operate.Token)
             except Exception as e:
                 print(e)
-            save_data = {'u_no' : self.__uid, 'exchange_id' : call_id, 'exchange_code' : 'NFO', 'stock_name' : self.__stock_name, 'stock_token': db_operate.Token,
-                                        'order_type' : 'sell', 'quantity' : self.quantity, 'expiry' : self.__expiry_date, 'strike_price' : self.call_strike, 
-                                        'right' : 'call', 'user_id' : userid}
+            save_data = {'u_no' : self.__uid, 'exchange_id' : order_id, 'exchange_code' : 'NFO', 'stock_name' : self.__stock_name, 'stock_token': db_operate.Token,
+                                        'order_type' : 'sell', 'quantity' : self.quantity, 'expiry' : self.__expiry_date, 'strike_price' : strike_price, 
+                                        'right' : right, 'user_id' : userid}
             
             save_order = TradeDecesion(app, db, self.__uid).save_in_loop(model=Order,data = save_data)
-            put_id = order_api.place_order(stock_code=self.__stock_name, expiry_date=self.__expiry_date, quantity=self.quantity, right='put', strike_price=self.put_strike)
+            
             # call strangle trade
         except Exception as e:
             print('Error in call-put of correct difference', e)
         else:
-            print(call_id, put_id)
+            print(self.call_strike, self.put_strike)
+            app.logger.info(f"Complete order ::::::::::: {self.call_strike, self.put_strike}")
