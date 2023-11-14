@@ -2,13 +2,14 @@ from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy import Column, DateTime, func, Integer, String
 from flask_mail import Mail
 from flask_login import UserMixin
-
+from flask_migrate import Migrate
+import datetime
 
 
 mail = Mail()
 
 db = SQLAlchemy()
-
+migrate = Migrate()
 #our model
 
 
@@ -22,6 +23,7 @@ class User(db.Model, UserMixin):
     api_id = db.relationship('Algo',uselist = False, backref='api')
     role_id = Column(Integer, db.ForeignKey('roles.id'))
     advance_order_id = db.relationship('Advance_order', backref = 'advance_order' )
+    oder_id = db.relationship('Order', backref = 'order' )
 
 # Advance order
 class Advance_order(db.Model):
@@ -39,6 +41,27 @@ class Advance_order(db.Model):
     extra_2 = Column(String(50), nullable = True)
     extra_3 = Column(String(50), nullable = True)
     user_id = Column(Integer, db.ForeignKey('user.id'))
+
+# Order Model
+class Order(db.Model):
+    table_name = "orders"
+    id = db.Column(db.Integer, primary_key=True)
+    # order_time =db.Column(db.DateTime, default = datetime.datetime.now)
+    date = db.Column(db.Date, default=datetime.datetime.today().date())
+    time = db.Column(db.Time, default=datetime.datetime.today().time())
+    u_no = db.Column(db.String(70), nullable= False)
+    exchange_id = db.Column(db.String(70), unique=True)
+    exchange_code = db.Column(db.String(70))
+    stock_name = db.Column(db.String(70))
+    stock_token = db.Column(db.String(70))
+    order_type = db.Column(db.String(70), nullable= True)
+    action = db.Column(db.String(10), default = 'on') # on or off
+    quantity = db.Column(db.Integer)
+    price = db.Column(db.Integer, nullable = True)
+    expiry = db.Column(db.String(30))
+    strike_price = db.Column(db.String(30))
+    right = db.Column(db.String(10))
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
 
 # Define the Role data-model
 class Role(db.Model):
@@ -107,4 +130,15 @@ class Tag(db.Model):
     tag_description = Column(String(70))
     # Define the many-to-many relationship with the "Equity" model
     equities = db.relationship('Equity', secondary=equity_tag, back_populates='tags')
-    
+
+# OPtion Table
+class OptionTable(db.Model):
+    __table_name__ = 'optionstable'
+    id = Column(Integer, primary_key=True)
+    Token = Column(String(70))
+    ShortName = Column(String(70))
+    InstrumentName = Column(String(70))
+    Series = Column(String(70))
+    ExpiryDate =Column(String(70))
+    StrikePrice = Column(String(70))
+    LotSize = Column(String(70))

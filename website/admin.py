@@ -5,7 +5,7 @@ try:
     import zipfile
     import pandas as pd
     import numpy as np
-    from .models import User, Algo, Role, db, Optionexpire, Equity, Indices, Sgb, Tag, equity_tag
+    from .models import User, Algo, Role, db, Optionexpire, Equity, Indices, Sgb, Tag, equity_tag, OptionTable
     from .utils import expiry_dates
 except Exception as e:
     print('Admin Import', e)
@@ -86,6 +86,24 @@ def insert_stocks_from_dataframe(data, model_name):
             except Exception as e:
                 msg = f"{row['ShortName']}  :  {e}"
                 current_app.logger.error(msg=msg)
+
+def insert_option_db(data):
+    # Delete existing data
+    db.session.query(OptionTable).delete()
+    db.session.commit()
+
+    # Convert Pandas DataFrame to a list of dictionaries
+    data['ExpiryDate'] = pd.to_datetime(data['ExpiryDate'])
+    data['ExpiryDate'] = data['ExpiryDate'].dt.strftime('%Y-%m-%d')
+    new_data = data.to_dict(orient='records')
+
+    # Insert new data
+    for row in new_data:
+        new_record = OptionTable(**row)
+        db.session.add(new_record)
+
+    db.session.commit()
+
 # Stock Management
 @admin.route('sudiip/stock', methods=['POST', 'GET'])
 def stock_management():
@@ -162,8 +180,22 @@ def stock_management():
                 insert_stocks_from_dataframe(df_equity, model_name= Equity)
                 insert_stocks_from_dataframe(df_indices, model_name= Indices)
                 insert_stocks_from_dataframe(df_sgb, model_name= Sgb)
+            
             except Exception as e:
+                db.session.rollback()
                 print(e)
+            # OPTION TOKEN ENTRY
+            df = pd.read_csv(filepath_or_buffer="website/static/temp_stock/FONSEScripMaster.txt")
+            df = df[(df['Series']== 'OPTION') & (df['InstrumentName']=='OPTIDX')]
+            df = df[['Token', 'ShortName', 'InstrumentName', 'Series', 'ExpiryDate', 'StrikePrice', 'LotSize']]
+            try:
+                insert_option_db(df)
+            except Exception as e:
+                db.session.rollback()
+                print('error in option token saving', e)
+            finally:
+                db.session.close()
+
 
         else:
             flash('Check Your file', category='error') 

@@ -21,38 +21,38 @@
             </tr>
         </thead>
         <tbody>
-            
+
             <tr>
                 <form action="/dashboard/strategy" method="post">
-                    
-                <td>
-                    <select name="stock_name" id="stockName" onclick="expiryfetch({{data.expiry}})" >
-                        
-                        <option value="-- Select from list --" selected>-- Select from list --</option>
-                        <option value="NIFTY">NIFTY</option>
-                        <option value="CNXBAN">BANK NIFTY</option>
-                    </select>
-                
-                </td>
-                
-                <td>
-                    <select class="form-select" size="1" name="expiry" id="expiry">
-                        
-                    </select>
-                </td>
-                <td>
-                    <select name="lot" id="">                        
-                        <option selected value="1">1</option>
-                        <option value="2">2</option>
-                        <option value="3">3</option>
-                    </select>
-                </td>
-                <td>
-                    <button type="submit" name="trade">Trade</button>
-                    
-                </td>
+
+                    <td>
+                        <select name="stock_name" id="stockName" onclick="expiryfetch({{data.expiry}})">
+
+                            <option value="-- Select from list --" selected>-- Select from list --</option>
+                            <option value="NIFTY">NIFTY</option>
+                            <option value="CNXBAN">BANK NIFTY</option>
+                        </select>
+
+                    </td>
+
+                    <td>
+                        <select class="form-select" size="1" name="expiry" id="expiry">
+
+                        </select>
+                    </td>
+                    <td>
+                        <select name="lot" id="">
+                            <option selected value="1">1</option>
+                            <option value="2">2</option>
+                            <option value="3">3</option>
+                        </select>
+                    </td>
+                    <td>
+                        <button type="submit" name="trade">Trade</button>
+
+                    </td>
             </tr>
-        </form>
+            </form>
         </tbody>
     </table>
 </div>
@@ -61,31 +61,38 @@
 <!-- order detail section -->
 <div class="cointainer">
     <table class="table">
-      <thead>
-        <th>Action</th>
-        <th>Name</th>
-        <th>STRATEGY</th>
-        <th>Percentage</th>
-        <th>Status</th>
-      </thead>
-      <tbody>
-        {% for order in data.orders %}
-        <tr>
-          <form action="/dashboard/strategy" method="post">
-            <td><button type="submit" name="order_delete">Delete</button></td>
-            <td><input type="text" style="border: none;" name="symbol" value="{{order.symbol}}"></td>
-            <td><span><input type="text" style="border: none;" name="symbol" value="{{order.strategy}}"></span></td>
-            <!-- <td><input type="text" style="border: none;" name="symbol" value="{{order.percentage}}"></td> -->
-            <td><span><input type="hidden" name="order_id" value="{{order.id}}"></span></td>
-            <td><input type="text" style="border: none;" name="symbol" value="{{order.status}}"></td>
-            
-          </form>
-        </tr>
-        <!-- class="visually-hidden" -->
-        {% endfor%}
-      </tbody>
+        <thead>
+            <th>Action</th>
+            <th>Name</th>
+            <th>STRATEGY</th>
+            <th>Percentage</th>
+            <th>Status</th>
+        </thead>
+        <tbody>
+            {% for order in data.orders %}
+            <tr>
+                <form action="/dashboard/strategy" method="post">
+                    <td><button type="submit" name="order_delete">Delete</button></td>
+                    <td><input type="text" style="border: none;" name="symbol" value="{{order.symbol}}"></td>
+                    <td><span><input type="text" style="border: none;" name="symbol" value="{{order.strategy}}"></span>
+                    </td>
+                    <!-- <td><input type="text" style="border: none;" name="symbol" value="{{order.percentage}}"></td> -->
+                    <td><span><input type="hidden" name="order_id" value="{{order.id}}"></span></td>
+                    <td><input type="text" style="border: none;" name="symbol" value="{{order.status}}"></td>
+
+                </form>
+            </tr>
+            <!-- class="visually-hidden" -->
+            {% endfor%}
+        </tbody>
     </table>
-  </div>
+</div>
+<!-- Current Order -->
+<div class="cointainer">
+    <table>
+        
+    </table>
+</div>
 
 {%endblock%}
 {% block js %}

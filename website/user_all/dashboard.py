@@ -193,6 +193,7 @@ def strategy_page():
         return redirect(url_for('all_user.strategy_page'))
 
     # Return to page
+    
     current_date = datetime.datetime.now().date()
     nifty = Optionexpire.query.filter_by(name = 'NIFTY').filter(Optionexpire.end_date >= current_date).all()    
     nifty_ = sorted([i.end_date.strftime('%Y-%m-%d') for i in nifty])

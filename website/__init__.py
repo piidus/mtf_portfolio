@@ -1,6 +1,7 @@
 from flask import Flask, render_template, flash, request, redirect, url_for
-from .models import db, mail
+from .models import db, mail, migrate
 from flask_login import LoginManager
+# from flask_migrate import Migrate
 from .models import User
 # from flask_mail import Mail
 import logging
@@ -12,6 +13,7 @@ def create_app():
     app.config.from_pyfile('config.py')
     db.init_app(app)
     mail.init_app(app)
+    migrate.init_app(app, db)
     
     # Configure basic logging
     # logging.basicConfig(filename='app.log', level=logging.DEBUG)
