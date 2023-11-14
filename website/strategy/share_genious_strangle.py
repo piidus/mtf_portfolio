@@ -57,7 +57,7 @@ class ShareGeniousStrangle:
             data = pd.DataFrame(history_['Success'])
             data = data[['datetime', 'open', 'high', 'low', 'close']].tail(1)
             self.__high, self.__low= data['high'].astype(dtype='float').values[0] , data['low'].astype(dtype='float').values[0]
-            
+            current_app.logger.debug(f"{self.__uid}")
             user_id = current_user.id
             threading.Timer(interval=1, function=self.get_ohlc, args=[self.__app, db, Advance_order, Order ,OptionTable,  user_id ]).start()
             # Fetch ltp
@@ -136,9 +136,10 @@ class ShareGeniousStrangle:
             call_id = order_api.place_order(stock_code=self.__stock_name, expiry_date=self.__expiry_date, quantity=self.quantity, right='call', strike_price=self.call_strike)
             try:
                 search_data = {'ShortName': self.__stock_name, 'ExpiryDate': self.__expiry_date,'StrikePrice': self.call_strike }
-                print(search_data)
+                # print(search_data)
                 
                 db_operate = TradeDecesion(app, db, self.__uid).check_database(model=OptionTable, filter_criteria=search_data)
+                app.logger.debug(f"token ::: {db_operate.Token}")
                 print(db_operate.Token)
             except Exception as e:
                 print(e)
