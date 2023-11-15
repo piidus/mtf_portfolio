@@ -5,6 +5,7 @@
 {%endblock%}
 {% block title %} Strategy Page {%endblock%}
 {% block body%}
+{{user.id}}
 <div class="container">
     <button id="sherStarButton">Share Geniuous Strangle</button>
     <button id="sanuMagic" title="In Demo Purpose" disabled>Sanu Magic</button>
@@ -76,8 +77,18 @@
                     <td><input type="text" style="border: none;" name="symbol" value="{{order.symbol}}"></td>
                     <td><span><input type="text" style="border: none;" name="symbol" value="{{order.strategy}}"></span>
                     </td>
+                    <td>
+                        {% if data.positions %}
+                        <!-- {{data.positions}} -->
+                        {% for position in data.positions %}
+                            {% if order.u_no == position.u_no %}
+                            {{ position.stock_token}}
+                            {% endif %}
+                        {% endfor%}
+                        {% endif %}
+                    </td>
                     <!-- <td><input type="text" style="border: none;" name="symbol" value="{{order.percentage}}"></td> -->
-                    <td><span><input type="hidden" name="order_id" value="{{order.id}}"></span></td>
+                    <td><span><input name="order_id" value="{{order.u_no}}"></span></td>
                     <td><input type="text" style="border: none;" name="symbol" value="{{order.status}}"></td>
 
                 </form>
@@ -88,11 +99,11 @@
     </table>
 </div>
 <!-- Current Order -->
-<div class="cointainer">
+<!-- <div class="cointainer">
     <table>
         
     </table>
-</div>
+</div> -->
 
 {%endblock%}
 {% block js %}

@@ -3,6 +3,7 @@ from sqlalchemy import Column, DateTime, func, Integer, String
 from flask_mail import Mail
 from flask_login import UserMixin
 from flask_migrate import Migrate
+from flask import abort
 import datetime
 
 
@@ -23,7 +24,7 @@ class User(db.Model, UserMixin):
     api_id = db.relationship('Algo',uselist = False, backref='api')
     role_id = Column(Integer, db.ForeignKey('roles.id'))
     advance_order_id = db.relationship('Advance_order', backref = 'advance_order' )
-    oder_id = db.relationship('Order', backref = 'order' )
+    
 
 # Advance order
 class Advance_order(db.Model):
@@ -41,6 +42,7 @@ class Advance_order(db.Model):
     extra_2 = Column(String(50), nullable = True)
     extra_3 = Column(String(50), nullable = True)
     user_id = Column(Integer, db.ForeignKey('user.id'))
+    orders = db.relationship('Order', backref='adv_order', lazy=True)
 
 # Order Model
 class Order(db.Model):
@@ -61,7 +63,8 @@ class Order(db.Model):
     expiry = db.Column(db.String(30))
     strike_price = db.Column(db.String(30))
     right = db.Column(db.String(10))
-    user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
+    
+    adv_order_id = db.Column(db.Integer, db.ForeignKey('advance_order.id'), nullable=True)
 
 # Define the Role data-model
 class Role(db.Model):

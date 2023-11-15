@@ -1,9 +1,9 @@
 try:
-    from flask import Blueprint, render_template, flash, current_app, request, redirect, url_for, jsonify, make_response
+    from flask import Blueprint, render_template, flash, current_app, request, redirect, url_for, jsonify, make_response, abort
     from flask_login import login_user, login_required, logout_user, current_user
     import urllib, datetime, pytz, time, uuid
     from website.strategy import ShareGeniousStrangle
-    from website.models import db, User, Algo, Optionexpire, Advance_order
+    from website.models import db, User, Algo, Optionexpire, Advance_order, Order
     from website.utils import Breeze_api, Icici_Connect
     # from main import app
 except Exception as e:
@@ -182,8 +182,10 @@ def strategy_page():
     # Delete a order
     if request.method == 'POST' and 'order_delete' in request.form:
         try:
-            id_ = request.form.get('order_id')
-            row = Advance_order.query.filter_by(id = id_).first()
+            adv_uno = request.form.get('order_id')
+            # print(adv_uno)
+            row = Advance_order.query.filter_by(u_no = adv_uno).first()
+            # print(row)
             row.status = 'stop'
             db.session.commit()
             flash(message='order stopped', category='info')
@@ -193,7 +195,7 @@ def strategy_page():
         return redirect(url_for('all_user.strategy_page'))
 
     # Return to page
-    
+    current_position = Order.query.filter(Order.exchange_id.isnot(None)).all()
     current_date = datetime.datetime.now().date()
     nifty = Optionexpire.query.filter_by(name = 'NIFTY').filter(Optionexpire.end_date >= current_date).all()    
     nifty_ = sorted([i.end_date.strftime('%Y-%m-%d') for i in nifty])
@@ -206,6 +208,37 @@ def strategy_page():
     data['expiry'] = {'nifty': nifty_,
                       'bnknifty' : bnknifty_}
     data['orders'] = all_order
+    data['positions'] = current_position
+    # print(data['positions'])
     # data = json.dumps(data)
     # data = 2
     return render_template('user/strategy.html', user = current_user, data = data)
+
+def user_role(role = ''):
+    "It Check user authentication just call the function inside function"
+    
+    if current_user.role:
+        if current_user.role.name in role:
+            def func():
+                print('ok')
+                return func
+        else:
+            print('not ok')
+            abort(code=500)
+    else:
+        abort(code=500)
+    #     def func():
+    #         return func
+    # else:
+    #     abort(500) 
+
+######################## pivot Strategy ##########################
+
+@login_required
+@all_user.route('/pivot_dashboard',  methods = ['GET', 'POST'])
+def pivot_order():
+    user_role(['admin'])
+
+
+    data = {}
+    return render_template('user/pivot_dashboard.html', user =  current_user, data = data)

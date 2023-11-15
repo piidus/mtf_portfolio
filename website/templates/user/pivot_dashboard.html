@@ -1,0 +1,16 @@
+{% extends 'user_base.html'%}
+<!-- Link to your CSS file using url_for -->
+{% block css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='all_user/pivot.css') }}">
+{%endblock%}
+{% block title %} Pivot Dashboard {%endblock%}
+{% block body%}
+
+<h2>Pivot</h2>
+
+<div id="myDiv"></div>
+{%endblock%}
+{% block js %}
+<script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+<script src="{{url_for('static', filename = 'all_user/pivot.js')}}" type="text/javascript"></script>
+{%endblock%}

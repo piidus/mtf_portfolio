@@ -13,7 +13,7 @@ except Exception as e:
 
 admin = Blueprint('admin', __name__)
 
-    
+
 
 @admin.route('sudiip/admin_home')
 def admin_home():

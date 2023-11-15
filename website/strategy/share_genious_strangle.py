@@ -1,7 +1,7 @@
 try:
     from flask import current_app
     from flask_login import current_user
-    import os, datetime, math
+    import datetime, time
     import pandas as pd
     import threading
     from website.utils import Breeze_api, Icici_Connect, OHLCEngine, TradeDecesion, option_ltp, round_to_multiple, FnoOrderManagement
@@ -61,14 +61,29 @@ class ShareGeniousStrangle:
             user_id = current_user.id
             threading.Timer(interval=1, function=self.get_ohlc, args=[self.__app, db, Advance_order, Order ,OptionTable,  user_id ]).start()
             # Fetch ltp
-            
+    def return_in_second_to_9_15(self, time):
+        """Returns the number of seconds to 9:15 from the given time.
+
+        Args:
+            time: A datetime object representing the current time.
+
+        Returns:
+            An integer representing the number of seconds to 9:15 from the given time.
+        """
+
+        nine_fifteen = datetime.datetime(time.year, time.month, time.day, 9, 15)
+        return (nine_fifteen - time).total_seconds()
     def get_ohlc(self, app, db, adv_table, order_table, option_table, userid):
+        now = datetime.datetime.now()
+        seconds_to_9_15 = self.return_in_second_to_9_15(now)
+        print(seconds_to_9_15)
+        # time.sleep(int(seconds_to_9_15))
         ohlc = OHLCEngine(userid=self.__user_id, session_token= self.__icici_token)
         stock_token = self.token[self.__stock_name][0]
         print(stock_token)
         # pre_order(stock_token)
         self.__today_oepn =  ohlc.engine(stock_list=[stock_token])
-        self.__today_oepn = 19574 #self.__today_oepn[self.__stock_name][0]
+        self.__today_oepn = self.__today_oepn[self.__stock_name][0]
         self.__today_oepn = float(self.__today_oepn)
         print( 'open today ::',self.__today_oepn, type(self.__today_oepn))
         # # print(self.__uid)
@@ -142,13 +157,14 @@ class ShareGeniousStrangle:
                 # print(search_data)
                 
                 db_operate = TradeDecesion(app, db, self.__uid).check_database(model=OptionTable, filter_criteria=search_data)
+                adv_query = TradeDecesion(app, db, self.__uid).check_database(model=Advance_order, filter_criteria={'u_no': self.__uid})
                 app.logger.debug(f"token ::: {db_operate.Token}")
                 print(db_operate.Token)
             except Exception as e:
                 print(e)
             save_data = {'u_no' : self.__uid, 'exchange_id' : order_id, 'exchange_code' : 'NFO', 'stock_name' : self.__stock_name, 'stock_token': db_operate.Token,
                                         'order_type' : 'sell', 'quantity' : self.quantity, 'expiry' : self.__expiry_date, 'strike_price' : strike_price, 
-                                        'right' : right, 'user_id' : userid}
+                                        'right' : right,  'adv_order_id': adv_query.id}
             
             save_order = TradeDecesion(app, db, self.__uid).save_in_loop(model=Order,data = save_data)
             
