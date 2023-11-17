@@ -238,7 +238,22 @@ def user_role(role = ''):
 @all_user.route('/pivot_dashboard',  methods = ['GET', 'POST'])
 def pivot_order():
     user_role(['admin'])
+    if request.method =='POST' and 'option_trade' in request.form:
+        stock_name = request.form.get('ticker')
+        expiry_date = request.form.get('expiry')
+        # first call history and calculate pivot
+        flash((stock_name, expiry_date,), 'info')
 
-
+    # Retun to page
+    current_date = datetime.datetime.now().date()
+    nifty = Optionexpire.query.filter_by(name = 'NIFTY').filter(Optionexpire.end_date >= current_date).all()    
+    nifty_ = sorted([i.end_date.strftime('%Y-%m-%d') for i in nifty])
+    bnknifty = Optionexpire.query.filter_by(name = 'CNXBAN').filter(Optionexpire.end_date >= current_date).all()    
+    # print(bnknifty)
+    bnknifty_ = sorted([i.end_date.strftime('%Y-%m-%d') for i in bnknifty])
+    # print(bnknifty_)
+    
     data = {}
+    data['expiry'] = {'nifty': nifty_,
+                      'cnxban' : bnknifty_}
     return render_template('user/pivot_dashboard.html', user =  current_user, data = data)

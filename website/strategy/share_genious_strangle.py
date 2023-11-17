@@ -59,7 +59,7 @@ class ShareGeniousStrangle:
             self.__high, self.__low= data['high'].astype(dtype='float').values[0] , data['low'].astype(dtype='float').values[0]
             current_app.logger.debug(f"{self.__uid}")
             user_id = current_user.id
-            threading.Timer(interval=1, function=self.get_ohlc, args=[self.__app, db, Advance_order, Order ,OptionTable,  user_id ]).start()
+            threading.Thread(target=self.get_ohlc, args=(self.__app, db, Advance_order, Order ,OptionTable,  user_id, )).start()
             # Fetch ltp
     def return_in_second_to_9_15(self, time):
         """Returns the number of seconds to 9:15 from the given time.
@@ -77,7 +77,7 @@ class ShareGeniousStrangle:
         now = datetime.datetime.now()
         seconds_to_9_15 = self.return_in_second_to_9_15(now)
         print(seconds_to_9_15)
-        # time.sleep(int(seconds_to_9_15))
+        time.sleep(int(seconds_to_9_15))
         ohlc = OHLCEngine(userid=self.__user_id, session_token= self.__icici_token)
         stock_token = self.token[self.__stock_name][0]
         print(stock_token)
