@@ -1,26 +1,50 @@
-// Load Expiry Dates
-function chooseExpiry(data) {
-    let ticker = document.getElementById('ticker').value;
-    ticker = ticker.toLowerCase();
-    console.log(data[ticker]);
-    const selectElement = document.getElementById('expiryDates');
-    while (selectElement.firstChild) {
-        selectElement.removeChild(selectElement.firstChild);
-    }
-    const optionsArray = data[ticker];
-
-    for (let option of optionsArray) {
-        const optionElement = document.createElement('option');
-        optionElement.textContent = option;
-        optionElement.value = option
-        selectElement.appendChild(optionElement);
-    }
-
-}
 
 
+///////////////// PIVOT Chart ///////////////////////////
+
+/////////////////////////////////////////////////
+// // Sample data (replace this with your actual data)
+// const timeSeriesData = {
+//     time: ['2023-01-01 09:15', '2023-01-01 09:30', '2023-01-01 09:45', '2023-01-01 10:00', '2023-01-01 10:15', '2023-01-01 10:30', '2023-01-01 10:45', '2023-01-01 11:00', '2023-01-01 11:15', '2023-01-01 11:30', '2023-01-01 11:45', '2023-01-01 12:00', '2023-01-01 12:15', '2023-01-01 12:30', '2023-01-01 12:45', '2023-01-01 13:00', '2023-01-01 13:15', '2023-01-01 13:30', '2023-01-01 13:45', '2023-01-01 14:00', '2023-01-01 14:15', '2023-01-01 14:30', '2023-01-01 14:45', '2023-01-01 15:00', '2023-01-01 15:15'],
+//     value: [100, 102, 105, 110, 108, 112, 115, 118, 120, 122, 125, 124, 126, 130, 128, 135, 133, 132, 136, 140, 138, 137, 135, 138, 142, 144, 145]
+// };
+
+// // Create traces
+// const trace = {
+//     x: timeSeriesData.time,
+//     y: timeSeriesData.value,
+//     type: 'scatter',
+//     mode: 'lines'
+// };
+
+// // Layout configuration
+// const layout = {
+//     xaxis: {
+//         type: 'date',
+//         tickvals: timeSeriesData.time,  // Set tick positions
+//         ticktext: timeSeriesData.time.map(time => new Date(time).toLocaleTimeString([], {hour: '2-digit', minute: '2-digit'})),  // Set tick labels
+//         title: 'Time',
+//         range: ['2023-01-01 09:15', '2023-01-01 15:15'],
+//         tickangle: -45,
+//         showline: true,
+//         showgrid: true,
+//         zeroline: false,
+//         linecolor: 'black',
+//         linewidth: 2
+//     },
+//     yaxis: {
+//         title: 'Value'
+//     }
+// };
+
+// // Create the plot
+// Plotly.newPlot('myDiv', [trace], layout);
 
 
+
+
+
+// ////?/////////////////////////////// old code
 // // Sample time series data
 // let timeSeriesData = {
 //     time: ['12:00', '13:00', '14:00', '15:00', '16:00', '17:00', '18:00'],

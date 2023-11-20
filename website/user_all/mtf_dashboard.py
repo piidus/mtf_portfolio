@@ -58,3 +58,4 @@ def mtf_ltp():
         # print(res)
     response = res
     return jsonify(response)
+

@@ -2,9 +2,10 @@ try:
     from flask import Blueprint, render_template, flash, current_app, request, redirect, url_for, jsonify, make_response, abort
     from flask_login import login_user, login_required, logout_user, current_user
     import urllib, datetime, pytz, time, uuid
-    from website.strategy import ShareGeniousStrangle
+    from website.strategy import ShareGeniousStrangle, PivotTrading
     from website.models import db, User, Algo, Optionexpire, Advance_order, Order
     from website.utils import Breeze_api, Icici_Connect
+
     # from main import app
 except Exception as e:
     print('Error in user_all/dashboard.py', e)
@@ -242,6 +243,9 @@ def pivot_order():
         stock_name = request.form.get('ticker')
         expiry_date = request.form.get('expiry')
         # first call history and calculate pivot
+        
+        pivot = PivotTrading(userid=current_user.id)
+        pivot.calculate_pivot(stockname=stock_name)
         flash((stock_name, expiry_date,), 'info')
 
     # Retun to page
@@ -257,3 +261,19 @@ def pivot_order():
     data['expiry'] = {'nifty': nifty_,
                       'cnxban' : bnknifty_}
     return render_template('user/pivot_dashboard.html', user =  current_user, data = data)
+
+
+# get api id and others
+@all_user.route('/user_details', methods = ['GET', 'POST'])
+def user_details():
+    print('it hitted', current_user.id)
+    userid = current_user.id
+    algo = Algo.query.filter_by(user_id = userid).first()
+    # Connect icici connect for id and token
+    algo_id, algo_token, algo_session_token = Icici_Connect(api_key=algo.api_key, api_session=algo.api_sesion)
+    print(algo_id, algo_token, algo_session_token)
+    data = {'algo_user_id': algo_id,
+            'algo_token': algo_token,
+            'total_token': algo_session_token}
+    return jsonify({'ok': 200,
+                    'data': data})

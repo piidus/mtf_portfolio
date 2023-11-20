@@ -3,8 +3,8 @@ from .models import db, mail, migrate
 from flask_login import LoginManager
 # from flask_migrate import Migrate
 from .models import User
-# from flask_mail import Mail
 import logging
+
 
 
 def create_app():
@@ -36,6 +36,7 @@ def create_app():
     app.register_blueprint(mtf_user, url_prefix='/')
     
     
+
 
     # from .models import User, Note
     

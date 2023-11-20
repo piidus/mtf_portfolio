@@ -5,7 +5,7 @@ try:
     import zipfile
     import pandas as pd
     import numpy as np
-    from .models import User, Algo, Role, db, Optionexpire, Equity, Indices, Sgb, Tag, equity_tag, OptionTable
+    from .models import User, Algo, Role, db, Optionexpire, Equity, Indices, Sgb, Tag, equity_tag, OptionTable, DynamicTable
     from .utils import expiry_dates
 except Exception as e:
     print('Admin Import', e)
@@ -257,3 +257,11 @@ def process_uploaded_csv(data, tag):
                 # Associate the equity with the tag
                 tag.equities.append(equity)
                 db.session.commit()
+
+# For Dynamic Table
+@admin.route('sudiip/dynamic', methods=['POST', 'GET'])
+def dynamic_database():
+    d = DynamicTable(name = 'Test')
+    db.session.add(d)
+    db.session.commit()
+    return 'ok'

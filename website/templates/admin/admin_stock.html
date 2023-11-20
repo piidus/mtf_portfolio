@@ -120,6 +120,12 @@
                             <button type="submit">Delete</button>
                         </form>
                     </td>
+                    <td>
+                        <form method="POST" action="/sudiip/dynamic" class="deleteForm">
+                            <input type="hidden" name="equity_id" value="{{ equity.id }}">
+                            <button type="submit">Add Data</button>
+                        </form>
+                    </td>
                 </tr>
             {% endfor %}
         </tbody>

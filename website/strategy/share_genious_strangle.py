@@ -77,7 +77,7 @@ class ShareGeniousStrangle:
         now = datetime.datetime.now()
         seconds_to_9_15 = self.return_in_second_to_9_15(now)
         print(seconds_to_9_15)
-        time.sleep(int(seconds_to_9_15))
+        # time.sleep(int(seconds_to_9_15))
         ohlc = OHLCEngine(userid=self.__user_id, session_token= self.__icici_token)
         stock_token = self.token[self.__stock_name][0]
         print(stock_token)

@@ -1,5 +1,7 @@
 from flask_sqlalchemy import SQLAlchemy
-from sqlalchemy import Column, DateTime, func, Integer, String
+from sqlalchemy import create_engine, Column, Integer, String, DateTime, func
+from sqlalchemy.ext.declarative import declarative_base
+from sqlalchemy.orm import sessionmaker
 from flask_mail import Mail
 from flask_login import UserMixin
 from flask_migrate import Migrate
@@ -145,3 +147,15 @@ class OptionTable(db.Model):
     ExpiryDate =Column(String(70))
     StrikePrice = Column(String(70))
     LotSize = Column(String(70))
+
+
+
+
+# for Second Database
+
+
+class DynamicTable(db.Model):
+    __bind_key__ = 'stock'  # Set the bind key to identify the second database
+    __tablename__ = 'dynamic_table'
+    id = Column(Integer, primary_key=True)
+    name = Column(String(930))
