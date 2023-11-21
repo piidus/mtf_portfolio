@@ -1,12 +1,13 @@
 from flask_sqlalchemy import SQLAlchemy
-from sqlalchemy import create_engine, Column, Integer, String, DateTime, func
+from sqlalchemy import create_engine, Column, Integer, String, Float, DateTime, func, Table
 from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy.orm import sessionmaker
+from sqlalchemy import MetaData
 from flask_mail import Mail
 from flask_login import UserMixin
 from flask_migrate import Migrate
 from flask import abort
 import datetime
+
 
 
 mail = Mail()
@@ -154,8 +155,18 @@ class OptionTable(db.Model):
 # for Second Database
 
 
-class DynamicTable(db.Model):
-    __bind_key__ = 'stock'  # Set the bind key to identify the second database
-    __tablename__ = 'dynamic_table'
-    id = Column(Integer, primary_key=True)
-    name = Column(String(930))
+def create_table(table_name):
+    engine = db.get_engine(bind_key='stock')
+    metadata = MetaData()
+    table = Table(table_name, metadata,
+        Column('id', Integer, primary_key=True, autoincrement='auto'),
+        Column('t_date',DateTime),
+        Column('open',Float),
+        Column('high',Float),
+        Column('low',Float),
+        Column('close',Float),
+        Column('volume', Integer),
+        )   
+    metadata.create_all(bind=engine) 
+
+    return table

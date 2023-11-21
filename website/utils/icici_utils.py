@@ -144,3 +144,53 @@ class FnoOrderManagement:
         D = self.api.get_order_detail(exchange_code="NFO",
                         order_id=order_id)
         print(D)
+
+
+# history Data
+class HistoricalData:
+    def __init__(self, full_token, api_key, Stock_name = 'NIFTY',exch= 'NSE', Interval = "5minute", **kwargs) -> None:
+        '''
+            stock_name : short name | interval : 5minute, 1day
+            **kwargs
+            from_days : int | to_days : int
+        '''
+        self.token = full_token
+        self.api_key = api_key
+        self.stock_name = Stock_name
+        self.exch = exch
+        self.Interval = Interval
+        self.from_days = kwargs.get('from_days', 50)
+        self.to_days = kwargs.get('to_days', 0)
+        
+    def history(self):
+        ''' return history as dictionary'''
+        conn = http.client.HTTPSConnection("breezeapi.icicidirect.com")
+        payload = None
+        headers = {
+            'X-SessionToken': self.token,
+            'apikey': self.api_key
+        }
+        try:
+            from_date = (datetime.datetime.now()-datetime.timedelta(days=self.from_days)).isoformat().split('T')[0]+'T09:00:00.000Z'
+            # print('date :', from_date)
+            to_date = (datetime.datetime.now() - datetime.timedelta(days=self.to_days)).isoformat().split('.')[0]+'.000Z'
+            conn.request("GET", f"/api/v2/historicalcharts?stock_code={self.stock_name}&exch_code=NSE&from_date={from_date}&to_date={to_date}&interval={self.Interval}", payload, headers)
+        except Exception as e:
+            print(e)
+        res = conn.getresponse()
+        data = res.read().decode('utf-8')
+
+        data = json.loads(data)
+        if data['Status'] == 200:
+            data = data['Success']
+            df = pd.DataFrame(data)
+            df = df[['datetime', 'open', 'high', 'low', 'close', 'volume']]
+            # df['datetime'] = pd.to_datetime(df['datetime']).dt.date
+            data = df.copy()            
+            return data
+        else:
+            print('error in historical data' )
+#     # print(data.decode("utf-8"))
+# data = history(Stock_name='TATMOT', Interval='1day', back_days = 2100)
+# df = pd.DataFrame(data)
+# df['datetime'] = pd.to_datetime(df['datetime']).dt.date

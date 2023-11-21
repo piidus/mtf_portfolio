@@ -1,12 +1,14 @@
 try:
-    from flask import Blueprint, render_template, request, flash, redirect, url_for, abort, current_app
+    from flask import Blueprint, render_template, request, flash, redirect, url_for, abort, current_app, jsonify
     from flask_login import login_required, current_user
     from sqlalchemy.exc import PendingRollbackError, DataError
+    from sqlalchemy import MetaData, inspect, Table, Column, Integer, String, Date, Float
     import zipfile
     import pandas as pd
     import numpy as np
-    from .models import User, Algo, Role, db, Optionexpire, Equity, Indices, Sgb, Tag, equity_tag, OptionTable, DynamicTable
-    from .utils import expiry_dates
+    from .models import User, Algo, Role, db, Optionexpire, Equity, Indices, Sgb, Tag, equity_tag, OptionTable
+    from .utils import expiry_dates, HistoricalData, Icici_Connect
+
 except Exception as e:
     print('Admin Import', e)
 
@@ -258,10 +260,85 @@ def process_uploaded_csv(data, tag):
                 tag.equities.append(equity)
                 db.session.commit()
 
-# For Dynamic Table
-@admin.route('sudiip/dynamic', methods=['POST', 'GET'])
+
+
+def create_table(table_name):
+    engine = db.get_engine(bind_key='stock')
+    metadata = MetaData()
+    table = Table(table_name, metadata,
+        Column('id', Integer, primary_key=True, autoincrement=True),
+        Column('t_date',Date),
+        Column('open',Float),
+        Column('high',Float),
+        Column('low',Float),
+        Column('close',Float),
+        Column('volume', Integer),
+        )   
+    metadata.create_all(bind=engine) 
+
+    return table
+# Function to save data from DataFrame to the dynamically created table
+def save_data_to_table(data_frame, table_name):
+    table = create_table(table_name)
+    engine = db.get_engine(bind='stock')
+
+    # Convert the DataFrame to a list of dictionaries
+    data_list = data_frame.to_dict(orient='records')
+
+    # Insert data into the dynamically created table
+    with engine.connect() as connection:
+        for data_row in data_list:
+            # print(data_row)
+            # Convert datetime to date if needed
+            if 't_date' in data_row:
+                data_row['t_date'] = pd.to_datetime(data_row['t_date']).date()
+            try:
+                # Insert data row into the table
+                connection.execute(table.insert().values(data_row))
+                connection.commit()
+            except Exception as e:
+                print(e)
+    
+@admin.route('sudiip/dynamic', methods=['POST'])
 def dynamic_database():
-    d = DynamicTable(name = 'Test')
-    db.session.add(d)
-    db.session.commit()
-    return 'ok'
+    ''' First Create Table |
+        set minimum 6 years data '''
+    if request.method == 'POST' and 'equity_isin' in request.form:
+
+        table_name = request.form.get('equity_isin') #Table name is isin
+        equities = Equity.query.all()
+        # for e_name in equities:
+        #     print(e_name.isin, e_name.tags)
+        #     if len(e_name.tags) != 0:
+        #         table_name = e_name.isin
+        if table_name:
+            #  Check Table is present or not            
+            inspector = inspect(db.get_engine(bind_key='stock')).get_table_names()
+            print(table_name, inspector)
+            if table_name.lower() not in inspector:
+                try:
+                
+                    # Get Stock token for history
+                    stock = Equity.query.filter_by(isin = table_name).first()
+                    stock_shortname = stock.shortname
+                    algo = Algo.query.filter_by(user_id = current_user.id).first()
+                    # conect for full token
+                    _,_, total_token = Icici_Connect(api_key=algo.api_key, api_session=algo.api_sesion)
+                    hist_data = HistoricalData(full_token=total_token, api_key=algo.api_key, Stock_name=stock_shortname, Interval='1day', from_days = 2100, to_days = 1).history()
+                    hist_data['datetime'] = pd.to_datetime(hist_data['datetime']).dt.date
+                    
+                    hist_data.rename(columns={'datetime': 't_date'}, inplace=True)  
+                    # print(hist_data)
+                    save_data_to_table(data_frame=hist_data, table_name=table_name)
+                except Exception as e:
+                    print(e)
+                flash(message = f'Table {table_name} created successfully!', category='success')
+            else:
+                flash(message='Table already created', category="error")
+        else:
+            return jsonify({'error': 'Table name not provided'}), 400
+    # RETURN SECTION
+    equities = Equity.query.all()
+    data = {}
+    data['tags'] = Tag.query.all()
+    return render_template('admin/admin_stock.html', user = current_user, data = data, equities= equities)
