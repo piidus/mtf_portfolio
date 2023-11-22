@@ -53,9 +53,17 @@
     <!-- Stock Entry form -->
     <div id="stockEntry" class="display-none">
         <form action="/sudiip/stock" method="post" enctype="multipart/form-data">
+            <label for="file1">STOCK ZIP</label>
             <input type="file" name="file1" class="form-control" required>
 
             <button type="submit" class="btn btn-primary" name="icici_stock_zip">Upload</button>
+        </form>
+        <hr>
+        <!-- Bhav copy -->
+        <form action="/sudiip/stock" method="post" enctype="multipart/form-data">
+            <label for="bhav_copy">BHAV COPY</label>
+            <input type="file" name="bhav_copy" class="form-control" required>
+            <button type="submit" class="btn btn-primary" name="bhav_copy_zip">Upload</button>
         </form>
     </div>
     <dIv id="tagEntry" class="display-none">

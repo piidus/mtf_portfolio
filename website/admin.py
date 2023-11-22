@@ -3,10 +3,11 @@ try:
     from flask_login import login_required, current_user
     from sqlalchemy.exc import PendingRollbackError, DataError
     from sqlalchemy import MetaData, inspect, Table, Column, Integer, String, Date, Float
-    import zipfile
+    from sqlalchemy.exc import IntegrityError
+    import zipfile, datetime
     import pandas as pd
     import numpy as np
-    from .models import User, Algo, Role, db, Optionexpire, Equity, Indices, Sgb, Tag, equity_tag, OptionTable
+    from .models import User, Algo, Role, db, Optionexpire, Equity, Indices, Sgb, Tag, equity_tag, OptionTable, stock_table
     from .utils import expiry_dates, HistoricalData, Icici_Connect
 
 except Exception as e:
@@ -201,6 +202,58 @@ def stock_management():
 
         else:
             flash('Check Your file', category='error') 
+    
+    # Stock Zip entry
+    if request.method == 'POST' and "bhav_copy_zip" in request.form:
+        # Check File Name
+        file =request.files['bhav_copy']
+        file_name = file.filename
+        print(file_name)
+        # Create a ZipFile object and extract the CSV file
+
+        with zipfile.ZipFile(file, 'r') as zip_ref:
+            # Assuming there's only one file in the zip, if there are multiple files, adjust accordingly
+            csv_file_name = zip_ref.namelist()[0]
+            with zip_ref.open(csv_file_name) as csv_file:
+                # Read the CSV file into a DataFrame
+                df = pd.read_csv(csv_file)
+                df.to_csv(path_or_buf=f'website/static/data/bhav/{file_name.split(".")[0]}.csv')
+
+        # Now you can work with the DataFrame 'df' as needed
+        # For example, you can print the first few rows
+        df = df[df['SERIES'] == 'EQ'].reset_index(drop=True)
+        date_ = pd.to_datetime(df['TIMESTAMP']).dt.date.head(1).values[0]
+        # print('************************** d::', date_)
+        df = df[['OPEN', 'HIGH', 'LOW', 'LAST', 'TOTTRDQTY', 'ISIN']]
+        
+        df.rename(columns={'OPEN': 'open', 'HIGH' : 'high', 'LOW':'low' , 'LAST' :'close', 'TOTTRDQTY':'volume'}, inplace=True)
+        df['t_date'] =date_
+        df = df.set_index('ISIN')
+        equities = Equity.query.all()
+        isin_list = []
+        for i in equities:
+            if len(i.tags) > 0:
+                isin_list.append(i.isin.lower())
+        # print(isin_list)
+        engine = db.get_engine(bind_key='stock')
+        try:
+            with engine.connect() as connection:
+                for index, row in df.iterrows():
+                    isin_ = index.lower()
+                    if isin_ in isin_list:
+                        table, metadata = stock_table(table_name=isin_.lower())
+                        # print(row.to_dict())
+                        # Insert the row into the dynamically created table
+                        connection.execute(table.insert().values(row.to_dict()))
+                connection.commit()
+        except IntegrityError as e:
+            flash('Date already added', category='error')
+        except Exception as e:
+            print(e)
+        finally:
+            connection.close()
+
+
     #################### TAG SECTION ##########################
     # Tag Entry
     if request.method == 'POST' and "tagName" in request.form:
@@ -210,6 +263,7 @@ def stock_management():
         tag = Tag(tagname = tagname, tag_description = tagdescription)
         db.session.add(tag)
         db.session.commit()
+
         flash("Tag added", category='success')
     # Tag delete
     if request.method == 'POST' and "tagDel" in request.form:
@@ -246,6 +300,7 @@ def stock_management():
     data['tags'] = Tag.query.all()
     return render_template('admin/admin_stock.html', user = current_user, data = data, equities= equities)
 
+# Tag & Equities manupulation
 def process_uploaded_csv(data, tag):
     for index, row in data.iterrows():
         
@@ -259,45 +314,59 @@ def process_uploaded_csv(data, tag):
                 # Associate the equity with the tag
                 tag.equities.append(equity)
                 db.session.commit()
+                
+                # Check table already in database
+                table_name = equity.isin.lower()                
+                inspector = inspect(db.get_engine(bind_key='stock')).get_table_names()
+                print(table_name, inspector)
+                if table_name not in inspector:
+
+                # Create table and add history
+                    stock_shortname = equity.shortname
+                    algo = Algo.query.filter_by(user_id = current_user.id).first()
+
+                    # conect for full token
+                    _,_, total_token = Icici_Connect(api_key=algo.api_key, api_session=algo.api_sesion)
+                    hist_data = HistoricalData(full_token=total_token, api_key=algo.api_key, Stock_name=stock_shortname, 
+                                               Interval='1day', from_days = 2100, to_days = 2).history()
+                    hist_data['datetime'] = pd.to_datetime(hist_data['datetime']).dt.date
+                    
+                    hist_data.rename(columns={'datetime': 't_date'}, inplace=True)  
+                    # print(hist_data)
+                    
+                    save_data_to_table(data_frame=hist_data, table_name=table_name)
 
 
 
-def create_table(table_name):
-    engine = db.get_engine(bind_key='stock')
-    metadata = MetaData()
-    table = Table(table_name, metadata,
-        Column('id', Integer, primary_key=True, autoincrement=True),
-        Column('t_date',Date),
-        Column('open',Float),
-        Column('high',Float),
-        Column('low',Float),
-        Column('close',Float),
-        Column('volume', Integer),
-        )   
-    metadata.create_all(bind=engine) 
-
-    return table
 # Function to save data from DataFrame to the dynamically created table
 def save_data_to_table(data_frame, table_name):
-    table = create_table(table_name)
-    engine = db.get_engine(bind='stock')
+    # first create table
+    engine = db.get_engine(bind_key='stock')
+    table, metadata = stock_table(table_name=table_name)  
+    metadata.create_all(bind=engine)
+    
 
     # Convert the DataFrame to a list of dictionaries
     data_list = data_frame.to_dict(orient='records')
 
     # Insert data into the dynamically created table
     with engine.connect() as connection:
-        for data_row in data_list:
-            # print(data_row)
-            # Convert datetime to date if needed
-            if 't_date' in data_row:
-                data_row['t_date'] = pd.to_datetime(data_row['t_date']).date()
-            try:
-                # Insert data row into the table
-                connection.execute(table.insert().values(data_row))
-                connection.commit()
-            except Exception as e:
-                print(e)
+        try:
+            for data_row in data_list:
+                # print(data_row)
+                # Convert datetime to date if needed
+                if 't_date' in data_row:
+                    data_row['t_date'] = pd.to_datetime(data_row['t_date']).date()
+                try:
+                    # Insert data row into the table
+                    connection.execute(table.insert().values(data_row))
+                    connection.commit()
+                except Exception as e:
+                    print(e)
+        except Exception as e:
+            print(e)
+        finally:
+            connection.close()
     
 @admin.route('sudiip/dynamic', methods=['POST'])
 def dynamic_database():
@@ -305,8 +374,8 @@ def dynamic_database():
         set minimum 6 years data '''
     if request.method == 'POST' and 'equity_isin' in request.form:
 
-        table_name = request.form.get('equity_isin') #Table name is isin
-        equities = Equity.query.all()
+        table_name = request.form.get('equity_isin').lower() #Table name is isin
+        # equities = Equity.query.all()
         # for e_name in equities:
         #     print(e_name.isin, e_name.tags)
         #     if len(e_name.tags) != 0:

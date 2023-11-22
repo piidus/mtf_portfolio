@@ -134,6 +134,7 @@ class Tag(db.Model):
     id = Column(Integer, primary_key=True)
     tagname = Column(String(30))
     tag_description = Column(String(70))
+    extra1 = Column(String(50))
     # Define the many-to-many relationship with the "Equity" model
     equities = db.relationship('Equity', secondary=equity_tag, back_populates='tags')
 
@@ -155,18 +156,18 @@ class OptionTable(db.Model):
 # for Second Database
 
 
-def create_table(table_name):
-    engine = db.get_engine(bind_key='stock')
+def stock_table(table_name):
+
     metadata = MetaData()
     table = Table(table_name, metadata,
         Column('id', Integer, primary_key=True, autoincrement='auto'),
-        Column('t_date',DateTime),
+        Column('t_date',DateTime, unique=True),
         Column('open',Float),
         Column('high',Float),
         Column('low',Float),
         Column('close',Float),
         Column('volume', Integer),
         )   
-    metadata.create_all(bind=engine) 
+    
 
-    return table
+    return table, metadata
