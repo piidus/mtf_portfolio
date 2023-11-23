@@ -312,6 +312,7 @@ def stock_management():
             # print(last_t_date_index)
 
     except Exception as e:
+        last_t_date_index = 0
         print(e)
     equities = Equity.query.all()
     data = {}
