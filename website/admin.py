@@ -2,7 +2,7 @@ try:
     from flask import Blueprint, render_template, request, flash, redirect, url_for, abort, current_app, jsonify
     from flask_login import login_required, current_user
     from sqlalchemy.exc import PendingRollbackError, DataError
-    from sqlalchemy import MetaData, inspect, Table, Column, Integer, String, Date, Float
+    from sqlalchemy import inspect, select, text
     from sqlalchemy.exc import IntegrityError
     import zipfile, datetime
     import pandas as pd
@@ -295,9 +295,28 @@ def stock_management():
             flash('Please provide a file', 'error')
 
     # RETURN SECTION
+    table, metadata = stock_table(table_name='INE002A01018'.lower())
+    # print(table, '---------------')
+    engine = db.get_engine(bind_key='stock')
+    try:
+        with engine.connect() as connection:
+            query = text(f"SELECT id, t_date FROM {'INE002A01018'.lower()} ORDER BY id DESC LIMIT 1")
+
+    # Execute the select statement
+    
+            result = connection.execute(query)
+            last_entry = result.fetchone()
+            # print(last_entry)
+            last_t_date_index = last_entry[1]
+            last_t_date_index = datetime.datetime.strftime(last_t_date_index, format='%Y-%m-%d')
+            # print(last_t_date_index)
+
+    except Exception as e:
+        print(e)
     equities = Equity.query.all()
     data = {}
     data['tags'] = Tag.query.all()
+    data['last_t_day'] = last_t_date_index
     return render_template('admin/admin_stock.html', user = current_user, data = data, equities= equities)
 
 # Tag & Equities manupulation
@@ -328,7 +347,7 @@ def process_uploaded_csv(data, tag):
                     # conect for full token
                     _,_, total_token = Icici_Connect(api_key=algo.api_key, api_session=algo.api_sesion)
                     hist_data = HistoricalData(full_token=total_token, api_key=algo.api_key, Stock_name=stock_shortname, 
-                                               Interval='1day', from_days = 2100, to_days = 2).history()
+                                               Interval='1day', from_days = 2100, to_days = 1).history()
                     hist_data['datetime'] = pd.to_datetime(hist_data['datetime']).dt.date
                     
                     hist_data.rename(columns={'datetime': 't_date'}, inplace=True)  
