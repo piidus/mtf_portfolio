@@ -17,6 +17,9 @@
     <button type="button" class="btn btn-secondary" id="tagkentry" onclick="hideOrShowDiv('stockManagement')">Stock
         Management</button>
     </button>
+    <form action="/sudiip/stock" method="post">
+        <button type="submit" name="test_db">test db</button>
+    </form>
     <br>
     <hr>
     <!-- expiry table -->
@@ -65,6 +68,12 @@
             <label for="bhav_copy">BHAV COPY</label>
             <input type="file" name="bhav_copy" class="form-control" required>
             <button type="submit" class="btn btn-primary" name="bhav_copy_zip">Upload</button>
+        </form>
+        <!-- mtf copy -->
+        <form action="/sudiip/stock" method="post" enctype="multipart/form-data">
+            <label for="mtf_copy">MTF LIST</label>
+            <input type="file" name="mtf_copy" class="form-control" required>
+            <button type="submit" class="btn btn-primary" name="mtf_csv">Upload</button>
         </form>
     </div>
     <dIv id="tagEntry" class="display-none">

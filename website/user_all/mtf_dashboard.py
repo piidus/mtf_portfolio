@@ -2,6 +2,7 @@ try:
     from flask import Blueprint, current_app, render_template, request, jsonify, session
     from flask_login import current_user, login_required
     import datetime
+    import pandas as pd
     from website.models import Equity, Tag, Algo
     from website.utils import Icici_Connect, OhlcPython, OHLCEngine
     # from website.utils.icici_ohlc import OHLCEngine
@@ -9,6 +10,27 @@ except Exception as e:
     print('error in userall.mtf_dashboard', e)
 
 mtf_user = Blueprint('mtf_user', __name__)
+
+@login_required
+@mtf_user.route('/swing', methods = ['POST', 'GET'])
+def swing_home():
+    # mtf csv
+    df = pd.read_csv(filepath_or_buffer='website/')
+
+
+
+    tags = Tag.query.all()
+
+    data = {'tags': tags}
+    return render_template('user/mtf_swing.html', user = current_user, data = data)
+
+
+
+
+
+
+
+
 @login_required
 @mtf_user.route('/mtf', methods = ['POST', 'GET'])
 def mtf_home():
@@ -48,14 +70,20 @@ def mtf_ltp():
     # ohlc = Ohlc()
     if request.method == 'POST':
         data = request.get_json()
-        token = session['token']
-        userid = session['userid']
-        print(userid, token)
-        # c =OhlcPython(userid=userid, session_token=token)
-        # OhlcPython(userid=userid, session_token=token) #,stock_list=data['tokenlist'])
-        t = OHLCEngine(userid=userid, session_token=token)
-        res = t.engine(data['tokenlist'])
-        # print(res)
-    response = res
-    return jsonify(response)
+        try:
+            token = session['token']
+            
+            userid = session['userid']
+            print(userid, token)
+            # c =OhlcPython(userid=userid, session_token=token)
+            # OhlcPython(userid=userid, session_token=token) #,stock_list=data['tokenlist'])
+            t = OHLCEngine(userid=userid, session_token=token)
+            res = t.engine(data['tokenlist'])
+            # print(res)
+            response = res
+            return jsonify(response)
+        except Exception as e:
+            return jsonify('plese connect it')
+        
+    
 

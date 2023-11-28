@@ -1,0 +1,18 @@
+{% extends 'user_base.html'%}
+<!-- Link to your CSS file using url_for -->
+{% block css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='all_user/mtf.css') }}">
+{%endblock%}
+{% block title %} Swing Trade {%endblock%}
+{% block body%}
+<form action="/sudiip/stock" method="post">
+    <button type="submit" name="test_db">test db</button>
+</form>
+{% for tag in data.tags %}
+<li>{{tag.tagname}}</li>
+{% endfor %}
+
+{%endblock%}
+<!-- {% block js %}
+<script src="{{url_for('static', filename = 'all_user/mtf.js')}}" type="text/javascript"></script>
+{%endblock%} -->

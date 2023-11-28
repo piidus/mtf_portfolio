@@ -123,7 +123,7 @@ class Equity(db.Model):
     id = Column(Integer, primary_key=True)
     token = Column(String(10))
     shortname = Column(String(30))
-    company_name = Column(String(50))
+    company_name = Column(String(100))
     isin = Column(String(15))
     exchange_name = Column(String(30))
     # Define the many-to-many relationship with the "Tag" model

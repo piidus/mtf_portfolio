@@ -2,13 +2,15 @@ try:
     from flask import Blueprint, render_template, request, flash, redirect, url_for, abort, current_app, jsonify
     from flask_login import login_required, current_user
     from sqlalchemy.exc import PendingRollbackError, DataError
-    from sqlalchemy import inspect, select, text
+    from sqlalchemy import inspect, select, text, create_engine, lambda_stmt
     from sqlalchemy.exc import IntegrityError
+    from sqlalchemy.orm import sessionmaker
     import zipfile, datetime
     import pandas as pd
     import numpy as np
     from .models import User, Algo, Role, db, Optionexpire, Equity, Indices, Sgb, Tag, equity_tag, OptionTable, stock_table
     from .utils import expiry_dates, HistoricalData, Icici_Connect
+    from website.config import SQLALCHEMY_BINDS
 
 except Exception as e:
     print('Admin Import', e)
@@ -107,6 +109,45 @@ def insert_option_db(data):
 
     db.session.commit()
 
+def create_sql(table_names:list, ohlc:str, period:int, shorting ='ASC', **kwargs):
+    counting = 0
+    extra_filter = kwargs.get('by_id', None)
+    
+    statement = ''
+    for table_name in table_names:
+        
+        # print(counting)
+        if extra_filter != None:
+            # print(extra_filter)
+            filtered_value = (extra_filter[counting])
+            print(filtered_value)
+            extra_filter_statement =  f"WHERE id <= {filtered_value}"
+        else:
+            extra_filter_statement = 'WHERE id IS NOT NULL'
+
+        
+
+
+        making_sql = f'''(SELECT table_name, id, {ohlc}, t_date
+        FROM (SELECT '{table_name}' AS table_name, id, {ohlc}, t_date 
+            FROM {table_name}
+            {extra_filter_statement}
+
+            ORDER BY id DESC 
+            LIMIT {period}) AS t{counting} 
+            ORDER BY {ohlc} {shorting}
+        LIMIT 1)  ''' 
+        statement +=  making_sql
+        counting += 1
+        if counting == len(table_names):
+            statement += ';'
+        else:
+            statement += "\n UNION ALL \n "
+        
+        
+    
+    # print(statement)
+    return statement
 # Stock Management
 @admin.route('sudiip/stock', methods=['POST', 'GET'])
 def stock_management():
@@ -293,6 +334,67 @@ def stock_management():
             flash('ok', 'Success')
         else:
             flash('Please provide a file', 'error')
+
+    # Mtf csv upload
+    # Tag Mapping
+    if request.method == 'POST' and "mtf_csv" in request.form:
+        file = request.files['mtf_copy']
+        if file :
+            try:
+                data = pd.read_csv(file)
+                # create 2 row
+                data['isin'] = None
+                data['token'] = ''
+                for idx, row in data.iterrows():
+                    # find in equity table and get isin and token
+                    equity = Equity.query.filter_by(company_name = row['Stock Name']).first()
+                    if equity:
+                        # print(row)
+                        # print(equity)
+                        data.loc[idx, 'isin'] = equity.isin
+                        data.loc[idx, 'token'] = equity.token
+                data.dropna(subset=['isin'], inplace=True)  
+                print(data)
+                data.to_csv(path_or_buf='website/static/data/csv/mtf.csv')
+            except Exception as e:
+                print(e)
+
+
+
+    # test db
+    if request.method == 'POST' and "test_db" in request.form:
+        database_url = SQLALCHEMY_BINDS['stock']
+        engine = create_engine(database_url)
+
+        # Create a session
+        Session = sessionmaker(bind=engine)
+        session = Session()
+        # Create a function to execute raw SQL queries
+        # first find the tag id
+        tag_id = Tag.query.filter_by(tagname = 'NIFTY 50').first()
+        print(tag_id, '------------------------')
+        equities_ = Equity.query.filter(Equity.tags.any(Tag.tagname == 'NIFTY 50')).all()
+        equities_ = [i.isin.lower() for i in equities_]
+        print(equities_)
+       
+        tables_names = equities_
+        query1 = create_sql(table_names=tables_names, ohlc='low', period=20)
+        query1 = text(query1)
+        result = session.execute(query1).fetchall()
+        result = pd.DataFrame(result)
+        print(result)
+        id_list = list(result['id'])
+        # print(id_list)
+        query2 = create_sql(table_names=tables_names, ohlc='high', period=20, shorting='DESC', by_id = id_list)
+        query2 = text(query2)
+        # print(query2)
+        result2 = session.execute(query2).fetchall()
+        result2 = pd.DataFrame(result2)
+        print(result2)
+        
+        session.close()
+############### proved query ################
+# 
 
     # RETURN SECTION
     table, metadata = stock_table(table_name='INE002A01018'.lower())
