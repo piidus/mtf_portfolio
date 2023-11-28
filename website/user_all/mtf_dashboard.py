@@ -6,6 +6,7 @@ try:
     from website.models import Equity, Tag, Algo
     from website.utils import Icici_Connect, OhlcPython, OHLCEngine
     # from website.utils.icici_ohlc import OHLCEngine
+    from website.strategy import Sharegenious
 except Exception as e:
     print('error in userall.mtf_dashboard', e)
 
@@ -14,8 +15,14 @@ mtf_user = Blueprint('mtf_user', __name__)
 @login_required
 @mtf_user.route('/swing', methods = ['POST', 'GET'])
 def swing_home():
-    # mtf csv
-    df = pd.read_csv(filepath_or_buffer='website/')
+    if request.method == 'POST' and 'test_db' in request.form:
+        # mtf csv
+        df = pd.read_csv(filepath_or_buffer='website/static/data/csv/mtf.csv')
+        # print(df)
+        try:
+            sharegenious = Sharegenious(userid=current_user.id, data=df)
+        except Exception as e:
+            print(e)
 
 
 
