@@ -5,14 +5,31 @@
 {%endblock%}
 {% block title %} Swing Trade {%endblock%}
 {% block body%}
-<form action="/swing" method="post">
-    <button type="submit" name="test_db">test db</button>
-</form>
-{% for tag in data.tags %}
-<li>{{tag.tagname}}</li>
-{% endfor %}
+<div>
+    <form action="/swing" method="post">
+        <h3>Share Genious </h3> <span>{{data.status}}</span>
+        <button type="submit" name="start_sharegenious" id="startButton" onclick="startSheare()">start</button>
+        <button type="submit" name="stop_sharegenious">Stop</button>
+    </form>
+
+    {% for adv in data.adv %}
+
+    <form action="/swing" method="post">
+        <select name="swing_action" id="">
+            <option value="pause">Pause</option>
+            <option value="resume">Resume</option>
+        </select><button type="submit" name="sharegenious_action">Go</button>
+        <span id="shareStatus">{{ adv.status }}</span>
+        <input type="text" value={{adv.u_no}} style="border: none;" name="u_id" readonly>
+    </form>
+
+    {% endfor %}
+</div>
+
+<hr>
 
 {%endblock%}
-<!-- {% block js %}
-<script src="{{url_for('static', filename = 'all_user/mtf.js')}}" type="text/javascript"></script>
-{%endblock%} -->
+
+{% block js %}
+<script src="{{url_for('static', filename = 'all_user/swing.js')}}" type="text/javascript"></script>
+{%endblock%}

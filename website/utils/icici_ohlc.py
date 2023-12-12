@@ -69,9 +69,10 @@ class OHLCEngine:
     def pause_point(self, script_code):
         print("Unwatch from the stock")
         self.conn.emit("leave", script_code)
-#     def close_point(self, conn=session['ohlc']):
-#         print("Disconnect from the server")
-#         conn.emit("disconnect", "transport close")
+
+    def close_point(self):
+        print("Disconnect from the server")
+        self.conn.emit("disconnect", "transport close")
     
     def engine(self, stock_list):
         scrip_code = ["4.1!" + item for item in list(stock_list)]

@@ -34,7 +34,7 @@ class Advance_order(db.Model):
     __table_name__ = 'advance_order'
     id = Column(Integer, primary_key=True)
     strategy = Column(String(30), nullable = False)
-    symbol = Column(String(10))
+    symbol = Column(String(10), nullable=True)
     created_at = Column(DateTime, default=func.now(), nullable=False)
     u_no = Column(String(50), unique = True)
     status = Column(String(20), default='due')
