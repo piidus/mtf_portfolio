@@ -342,19 +342,44 @@ def stock_management():
         if file :
             try:
                 data = pd.read_csv(file)
+                # add columns to data
+                data.columns = ['sl', 'shortcode', 'ISIN Code', 'base', 'haircut']
+                
                 # create 2 row
                 data['isin'] = None
                 data['token'] = ''
                 for idx, row in data.iterrows():
-                    # find in equity table and get isin and token
-                    equity = Equity.query.filter_by(company_name = row['Stock Name']).first()
+                #     # find in equity table and get isin and token
+                    equity = Equity.query.filter_by(isin = row['ISIN Code']).first()
                     if equity:
-                        # print(row)
-                        # print(equity)
+                #         # print(row)
+                #         # print(equity)
                         data.loc[idx, 'isin'] = equity.isin
                         data.loc[idx, 'token'] = equity.token
                 data.dropna(subset=['isin'], inplace=True)  
                 print(data)
+                # first try to delete mtf tag remove
+                try:
+                    tag_dup_length = Tag.query.filter_by(tagname = 'mtf').all()
+                    print(tag_dup_length, 'all tags')
+                    for _ in range(len(tag_dup_length)):
+                        tag = Tag.query.filter_by(tagname = 'mtf').first()
+                        # Remove the tag from associated equities (optional, depends on your use case)
+                        for equity in tag.equities:
+                            tag.equities.remove(equity)
+                            db.session.commit()
+                        db.session.delete(tag)
+                        print('delete all tags')
+                        db.session.commit()
+                except Exception as e:
+                    print(e)
+                # Add tag
+                tag = Tag(tagname = 'mtf')
+                db.session.add(tag)
+                db.session.commit()
+                tag = Tag.query.filter_by(tagname = 'mtf').first()
+                # print(tag)
+                process_uploaded_csv(data, tag)
                 data.to_csv(path_or_buf='website/static/data/csv/mtf.csv')
             except Exception as e:
                 print(e)
@@ -440,9 +465,9 @@ def process_uploaded_csv(data, tag):
                 # Check table already in database
                 table_name = equity.isin.lower()                
                 inspector = inspect(db.get_engine(bind_key='stock')).get_table_names()
-                print(table_name, inspector)
+                # print(table_name, inspector)
                 if table_name not in inspector:
-
+                    print(table_name)
                 # Create table and add history
                     stock_shortname = equity.shortname
                     algo = Algo.query.filter_by(user_id = current_user.id).first()

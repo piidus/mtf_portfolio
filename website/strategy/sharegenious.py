@@ -179,16 +179,25 @@ class Sharegenious:
         pd.options.display.max_columns = None
         # print(merged_df)
         # print(self.__data)
+        # Convert 'isin' column in df1 to lowercase
+        self.__data['lower_isin'] = self.__data['isin'].str.lower()
+        # Merge df1 and df2 on the lowercase 'isin' and 'table_name' columns
+        m1 = filtered_df.merge(self.__data, how='left', left_on='table_name', right_on='lower_isin')
+        # Drop the redundant 'isin_lower' column
+        m1 = m1.drop(columns=['lower_isin'])
+        m1 = m1.rename(columns={'Stock Code':'stockcode'})
+        print('--------------------------------------------')
+        print(m1)
         # Create a dictionary mapping 'isin' values to 'token' values in df1
-        isin_token_mapping = dict(zip(self.__data['isin'].str.lower(), self.__data['token']))
-        # Create a new 'token' column in df2 by mapping lowercase 'isin' values to 'token' values
-        filtered_df['token'] = filtered_df['table_name'].str.lower().map(isin_token_mapping)
-        # Create a dictionary mapping 'isin' values to 'stock_code' values in df1
-        isin_stockcode_mapping = dict(zip(self.__data['isin'].str.lower(), self.__data['Stock Code']))
-        # Create a new 'token' column in df2 by mapping lowercase 'isin' values to 'token' values
-        filtered_df['stockcode'] = filtered_df['table_name'].str.lower().map(isin_stockcode_mapping)
-        # print(filtered_df)
-        del merged_df, isin_token_mapping
+        # isin_token_mapping = dict(zip(self.__data['isin'].str.lower(), self.__data['token']))
+        # # Create a new 'token' column in df2 by mapping lowercase 'isin' values to 'token' values
+        # filtered_df['token'] = filtered_df['table_name'].str.lower().map(isin_token_mapping)
+        # # Create a dictionary mapping 'isin' values to 'stock_code' values in df1
+        # isin_stockcode_mapping = dict(zip(self.__data['isin'].str.lower(), self.__data['Stock Code']))
+        # # Create a new 'token' column in df2 by mapping lowercase 'isin' values to 'token' values
+        # filtered_df['stockcode'] = filtered_df['table_name'].str.lower().map(isin_stockcode_mapping)
+        # # print(filtered_df)
+        # del merged_df, isin_token_mapping
         session.close()
-        return filtered_df
+        return m1
     
