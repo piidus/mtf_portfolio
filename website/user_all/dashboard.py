@@ -215,6 +215,20 @@ def strategy_page():
     # data = 2
     return render_template('user/strategy.html', user = current_user, data = data)
 
+# Fetch expiry
+@all_user.route('/fetch_expiry', methods = ['POST'])
+def fetch_expiry():
+    current_date = datetime.datetime.now().date()
+    nifty = Optionexpire.query.filter_by(name = 'NIFTY').filter(Optionexpire.end_date >= current_date).all()    
+    nifty_ = sorted([i.end_date.strftime('%Y-%m-%d') for i in nifty])
+    bnknifty = Optionexpire.query.filter_by(name = 'CNXBAN').filter(Optionexpire.end_date >= current_date).all()    
+    # print(bnknifty)
+    bnknifty_ = sorted([i.end_date.strftime('%Y-%m-%d') for i in bnknifty])
+    expiry = {'nifty': nifty_,
+            'bnknifty' : bnknifty_}
+    return jsonify(expiry)
+
+
 def user_role(role = ''):
     "It Check user authentication just call the function inside function"
     
@@ -233,6 +247,11 @@ def user_role(role = ''):
     # else:
     #     abort(500) 
 
+############### NARU ALERT STRATEGY###################
+@login_required
+@all_user('/')
+def fetch_alert():
+    pass
 ######################## pivot Strategy ##########################
 
 @login_required
@@ -277,3 +296,5 @@ def user_details():
             'total_token': algo_session_token}
     return jsonify({'ok': 200,
                     'data': data})
+
+
