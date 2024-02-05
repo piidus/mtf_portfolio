@@ -47,6 +47,28 @@ class Advance_order(db.Model):
     user_id = Column(Integer, db.ForeignKey('user.id'))
     orders = db.relationship('Order', backref='adv_order', lazy=True)
 
+class Trigger(db.Model):
+    table_name = 'triggers'
+    id = Column(Integer, primary_key=True)
+    date = Column(db.Date, default=datetime.datetime.today().date())
+    time = Column(db.Time, default=datetime.datetime.today().time())
+    strategy = Column(String(30), nullable = False)
+    symbol = Column(String(30), nullable=True)
+    token = Column(String(30), nullable=True)
+    full_name = Column(String(100), nullable=True)
+    isin = Column(String(15), nullable=True)
+    target = Column(String(10), nullable=True)
+    stop_loss = Column(String(10), nullable=True)
+    ex1 = Column(String(30), nullable=True)
+    ex2 = Column(String(30), nullable=True)
+    ex3 = Column(String(30), nullable=True)
+    ex4 = Column(String(30), nullable=True)
+    ex5 = Column(String(30), nullable=True)
+    ex6 = Column(String(30), nullable=True)
+    ex7 = Column(String(30), nullable=True)
+    ex8 = Column(String(30), nullable=True)
+    ex9 = Column(String(30), nullable=True)
+
 # Order Model
 class Order(db.Model):
     table_name = "orders"

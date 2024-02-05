@@ -1,3 +1,4 @@
+
 try:
     from typing import Any
     import pandas as pd
@@ -6,9 +7,9 @@ try:
     import threading
     import datetime, time
     from website.config import SQLALCHEMY_BINDS
-    from website.utils import sql_quaries, OHLCEngine, Icici_Connect
-    from website.models import db, Advance_order, Algo
-    
+    from website.utils import sql_quaries, OHLCEngine, Icici_Connect, TradeDecesion
+    from website.models import db, Advance_order, Algo, Trigger
+    from flask_login import current_user
 
 except Exception as e:
     print('Error in strategy/sharegenious.py  ::', e)
@@ -25,7 +26,7 @@ def order_management(userid, uid):
 class Sharegenious:
     __instance = None
     
-    def __new__(cls, uid, userid, data = ''):
+    def __new__(cls, uid, userid, data = '', **kwargs):
         if cls.__instance is None:
             print('Create new Sharegenious Instance')
             cls.__instance = super(Sharegenious, cls).__new__(cls)
@@ -36,10 +37,11 @@ class Sharegenious:
             return cls.__instance
 
 
-    def __init__(self, userid,  uid, data='') -> None:
+    def __init__(self, userid,  uid, data='', **kwargs) -> None:
         self.__userid = userid
         self.__data = data
         self.__uid = uid
+        self.__app = kwargs.get('app', None)
         self.__status = 0
         self.__ohlc_connection = self.establish_connection()
     
@@ -55,8 +57,10 @@ class Sharegenious:
         algo = Algo.query.filter_by(user_id = self.__userid).first()
         print(algo.api_key, algo.api_sesion)
         userid, session_token, total_session_token = Icici_Connect(api_key=algo.api_key, api_session=algo.api_sesion)
-        
+        print(userid, session_token)
         ohlc = OHLCEngine(userid=userid, session_token=session_token)
+        if ohlc == -1:
+            return -1
         return ohlc
         
         
@@ -77,8 +81,10 @@ class Sharegenious:
             self.__status = 1
             scrip_list = self.__history['token'].to_list()
             self.scrip_list = ["4.1!"+str(item) for item in scrip_list]
-            self.__ohlc_connection.start_point(scrip_code=self.scrip_list)
-            start_first_time = self.test_function(status=self.__status)
+            conn = self.__ohlc_connection.start_point(scrip_code=self.scrip_list)
+            if conn == -1:
+                return -1
+            start_first_time = self.test_function(status=self.__status, app=self.__app)
         elif status == 0: #pause trade
             print('it pause the trade')
             self.__status = 0
@@ -90,39 +96,55 @@ class Sharegenious:
             scrip_list = self.__history['token'].to_list()
             self.scrip_list = ["4.1!"+str(item) for item in scrip_list]
             self.__ohlc_connection.start_point(scrip_code=self.scrip_list)
-            self.test_function( status=self.__status)
+            self.test_function( status=self.__status,app= self.__app)
         print('----- Current status ::', self.__status)
 
-    def filter_ltp(self, ohlc):
+    def filter_ltp(self, ohlc, app):
         '''
         First take ohlc and found value cross high price
 
         '''
-        print(self.__data)
+        # print(self.__data)
         for key, row in ohlc.items():
             target_value = float(row[0])
             filtered_row = self.__history[(self.__history['stockcode'] == key) & (self.__history['high'] < target_value)]
             if not filtered_row.empty :
                 print(filtered_row, target_value)
+                # print(filtered_row['token'].values[0])
+                # final_value = value + (value * (percent / 100))
+                target = round(filtered_row['last_high'].values[0] + (filtered_row['last_high'].values[0] * (15 /100)),2)
+                user_id = self.__uid[:1]
+                print(user_id)
+                # Save the data in for loop
+                save_data = {'strategy': 'sharegenious', 'symbol': key, 'token': filtered_row['token'].values[0], 'target' : target,
+                             'full_name': filtered_row['fullname'].values[0], 'isin': filtered_row['isin'].values[0],
+                             'stop_loss': filtered_row['low'].values[0], 'ex1': filtered_row['t_date_low'].values[0], 'ex2': user_id}
+                try:
+                    TradeDecesion(app=app, db=db, uid=self.__uid).save_in_loop(model=Trigger, data=save_data)
+                except Exception as e:
+                    print('error in save in loop')
+                else:
+                    # df.drop(df[df['token'] == 252].index)
+                    self.__history = self.__history.drop(self.__history[self.__history['token'] == filtered_row['token'].values[0]].index)
+                
             else:
-                pass
+                print('no Trigger')
         
-        pass
 
     
     
     
-    def test_function(self, status):        
+    def test_function(self, status, app):        
         
         if status == 1:
             print('thread activate')
             print(self.__status,type(self.__status), datetime.datetime.now(), self.__instance)
             print(threading.activeCount())
             ohlc =self.__ohlc_connection.OHLC
-            print(type(ohlc))
-            self.filter_ltp(ohlc = ohlc.copy())
+            # print((ohlc))
+            self.filter_ltp(ohlc = ohlc.copy(), app=app)
             time.sleep(5)
-            t = threading.Thread(target=self.test_function, args=(self.__status,))
+            t = threading.Thread(target=self.test_function, args=(self.__status, app))
             t.start()
         else:
             
@@ -141,8 +163,14 @@ class Sharegenious:
         table_names = inspector.get_table_names()
         # print(table_names)
         new_list = [i.lower()  for i in self.__data['isin'] if i.lower() in table_names]
-        print(len(new_list), len(table_names)), len(self.__data['isin'])
-        return new_list
+        triggered_list = Trigger.query.filter(Trigger.date == datetime.datetime.now().date(), Trigger.strategy == 'sharegenious')
+        triggered_token = [triger.isin.lower() for triger in triggered_list]
+        print(('*'*100), triggered_token)
+        # first_list = [name for name in first_list if name not in second_list]
+        new_list_ = [isin for isin in new_list if isin not in triggered_token]
+        # print(new_list_)
+        print(len(new_list), len(new_list_), len(table_names)), len(self.__data['isin'])
+        return new_list_
 
 
         # # Create a session
@@ -185,19 +213,11 @@ class Sharegenious:
         m1 = filtered_df.merge(self.__data, how='left', left_on='table_name', right_on='lower_isin')
         # Drop the redundant 'isin_lower' column
         m1 = m1.drop(columns=['lower_isin'])
-        m1 = m1.rename(columns={'Stock Code':'stockcode'})
+        m1 = m1.rename(columns={'shortcode':'stockcode'})
         print('--------------------------------------------')
         print(m1)
-        # Create a dictionary mapping 'isin' values to 'token' values in df1
-        # isin_token_mapping = dict(zip(self.__data['isin'].str.lower(), self.__data['token']))
-        # # Create a new 'token' column in df2 by mapping lowercase 'isin' values to 'token' values
-        # filtered_df['token'] = filtered_df['table_name'].str.lower().map(isin_token_mapping)
-        # # Create a dictionary mapping 'isin' values to 'stock_code' values in df1
-        # isin_stockcode_mapping = dict(zip(self.__data['isin'].str.lower(), self.__data['Stock Code']))
-        # # Create a new 'token' column in df2 by mapping lowercase 'isin' values to 'token' values
-        # filtered_df['stockcode'] = filtered_df['table_name'].str.lower().map(isin_stockcode_mapping)
-        # # print(filtered_df)
-        # del merged_df, isin_token_mapping
+        m1.to_csv(path_or_buf='website/static/data/csv/history.csv')
+        
         session.close()
         return m1
     

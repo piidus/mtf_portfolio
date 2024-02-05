@@ -343,11 +343,13 @@ def stock_management():
             try:
                 data = pd.read_csv(file)
                 # add columns to data
-                data.columns = ['sl', 'shortcode', 'ISIN Code', 'base', 'haircut']
+                data.columns = ['sl', 'nseshortcode', 'ISIN Code', 'base', 'haircut']
                 
                 # create 2 row
                 data['isin'] = None
                 data['token'] = ''
+                data['shortcode'] = ''
+                data['fullname'] = ''
                 for idx, row in data.iterrows():
                 #     # find in equity table and get isin and token
                     equity = Equity.query.filter_by(isin = row['ISIN Code']).first()
@@ -356,6 +358,8 @@ def stock_management():
                 #         # print(equity)
                         data.loc[idx, 'isin'] = equity.isin
                         data.loc[idx, 'token'] = equity.token
+                        data.loc[idx, 'shortcode'] = equity.shortname
+                        data.loc[idx, 'fullname'] = equity.company_name
                 data.dropna(subset=['isin'], inplace=True)  
                 print(data)
                 # first try to delete mtf tag remove
@@ -381,6 +385,8 @@ def stock_management():
                 # print(tag)
                 process_uploaded_csv(data, tag)
                 data.to_csv(path_or_buf='website/static/data/csv/mtf.csv')
+                print('process.complete')
+                flash('Process Complete', category='success')
             except Exception as e:
                 print(e)
 

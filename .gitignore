@@ -114,7 +114,7 @@ ipython_config.py
 __pypackages__/
 website/static/temp_stock/*
 website/static/data/bhav/*
-website/static/data/csv/*
+website/static/data/*
 # Celery stuff
 celerybeat-schedule
 celerybeat.pid

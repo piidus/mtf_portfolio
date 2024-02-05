@@ -4,7 +4,7 @@ try:
     import datetime, uuid
     import pandas as pd
     from sqlalchemy import or_, and_
-    from website.models import Equity, Tag, Algo, Advance_order, db
+    from website.models import Equity, Tag, Algo, Advance_order, Trigger, db
     from website.utils import Icici_Connect, OhlcPython, OHLCEngine
     # from website.utils.icici_ohlc import OHLCEngine
     from website.strategy import Sharegenious
@@ -25,8 +25,11 @@ def swing_home():
             df = pd.read_csv(filepath_or_buffer='website/static/data/csv/mtf.csv')
             # print(df)
             try:
+                from main import app
                 uid = f"{current_user.id}-{str(uuid.uuid4().int)}"
-                sharegenious = Sharegenious(userid=current_user.id, uid=uid, data=df).maintain_order_status(status=3)
+                sharegenious = Sharegenious(userid=current_user.id, uid=uid, data=df, app=app).maintain_order_status(status=3)
+                if sharegenious == -1:
+                    flash('error in connection', category='error')
             except Exception as e:
                 print(e)
             flash("order submitted", category='success')
@@ -63,7 +66,7 @@ def swing_home():
     # Returning section
     tags = Tag.query.all()
     adv = Advance_order.query.filter(and_(Advance_order.strategy == 'sharegenious'),or_(Advance_order.status =='due', Advance_order.status == 'pause') )
-
+    
     data = {'tags': tags,
             'adv' : adv}
     return render_template('user/mtf_swing.html', user = current_user, data = data)
@@ -108,7 +111,7 @@ def mtf_home():
             'taglength': tag_length}
     
     return render_template('user/mtf_dashboard.html', user = current_user, data = data )
-
+@login_required
 @mtf_user.route('/mtf_ltp', methods= ['POST'])
 def mtf_ltp():
     # ohlc = Ohlc()

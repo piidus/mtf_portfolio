@@ -16,10 +16,12 @@ def ohlc_connection(userid, session_token):
             sio = socketio.Client()
             auth = {"user": userid, "token": session_token}
             sio.connect("https://breezeapi.icicidirect.com/", socketio_path='ohlcvstream', headers={"User-Agent":"python-socketio[client]/socket"}, 
-                        auth=auth, transports="websocket", wait_timeout=3)
+                auth=auth, transports="websocket", wait_timeout=3)
+
             return sio
         except Exception as e:
-            print(e)
+            print('ERROR IN OHLC', e)
+            return -1
 class OhlcPython:
     ''' It only return session token'''
     
@@ -63,8 +65,12 @@ class OHLCEngine:
 
     def start_point(self,scrip_code,  channel_name = "1SEC"):
         #Connect to receive feeds
-        self.conn.emit('join', scrip_code)
-        self.conn.on(channel_name, self.on_ticks)
+        try:
+            self.conn.emit('join', scrip_code)
+            self.conn.on(channel_name, self.on_ticks)
+        except Exception as e:
+            print('error in startpoint', e)
+        
        
     def pause_point(self, script_code):
         print("Unwatch from the stock")
