@@ -249,7 +249,7 @@ def user_role(role = ''):
 
 ############### NARU ALERT STRATEGY###################
 @login_required
-@all_user('/')
+@all_user.route('/')
 def fetch_alert():
     pass
 ######################## pivot Strategy ##########################
