@@ -197,22 +197,16 @@ def strategy_page():
 
     # Return to page
     current_position = Order.query.filter(Order.exchange_id.isnot(None)).all()
-    current_date = datetime.datetime.now().date()
-    nifty = Optionexpire.query.filter_by(name = 'NIFTY').filter(Optionexpire.end_date >= current_date).all()    
-    nifty_ = sorted([i.end_date.strftime('%Y-%m-%d') for i in nifty])
-    bnknifty = Optionexpire.query.filter_by(name = 'CNXBAN').filter(Optionexpire.end_date >= current_date).all()    
-    # print(bnknifty)
-    bnknifty_ = sorted([i.end_date.strftime('%Y-%m-%d') for i in bnknifty])
+    
+    
     # print(bnknifty_)
     all_order = Advance_order.query.filter_by(user_id = current_user.id, status = 'due').all()[::-1]
     data = {}
-    data['expiry'] = {'nifty': nifty_,
-                      'bnknifty' : bnknifty_}
+    
     data['orders'] = all_order
     data['positions'] = current_position
-    # print(data['positions'])
-    # data = json.dumps(data)
-    # data = 2
+    
+    
     return render_template('user/strategy.html', user = current_user, data = data)
 
 # Fetch expiry
